@@ -427,3 +427,49 @@ xorriso -as mkisofs -o ~/dfs-iso/dfs-gui.iso -b boot/grub/grub.cfg -no-emul-boot
 qemu-system-x86_64 -cdrom ~/dfs-iso/dfs-gui.iso
 ```
 If you get any issues create a new issue
+
+# Chapter 3 Further Beyond DFS: How to port `xorg`
+> ![IMPORTANT]
+> Do not use this part yet since it is not ready and is in heavy development changes may occur
+
+![Hard](https://img.shields.io/badge/Level%Hard-red) 
+This is hard and we do not recommend this to beginners please make sure you have a good understanding of Unix , Linux and The Previous Chapters so you can get a better understanding of how you can do this
+
+* Make sure you have the source code of the GUI ISO so you can continue
+
+* First `wget` the source code and extract the src
+```
+wget https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz
+tar -xzf https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz
+```
+* now install dependencies
+```
+sudo apt-get install build-essential libx11-dev libxext-dev libxau-dev libxdmcp-dev xorg-dev libdrm-intel1
+```
+* Configure and Build Xorg
+```
+./configure --prefix=/home/$USER/dfs-gui/usr --sysconfdir=home/$USER/dfs-gui/etc --localstatedir=/var
+```
+* Compile: Build the Xorg server:
+```
+make
+make CONFIG_PREFIX=/home/$USER/dfs-gui/ install
+```
+
+* Download Intel Driver
+```
+wget https://www.x.org/releases/individual/driver/xf86-video-intel-2.4.1.tar.bz2
+tar -xjf xf86-video-intel-2.4.1.tar.bz2
+cd xf86-video-intel-2.4.1
+```
+* Configure and Build Intel Driver
+```
+./configure --prefix=/home/$USER/dfs-gui/usr --sysconfdir=home/$USER/dfs-gui/etc
+make
+sudo make install
+```
+* Configure Xorg for Intel Devices
+```
+sudo mkdir -p /home/$USER/dfs-gui/etc/X11/xorg.conf.d/
+sudo nano /home$USER/dfs-gui/etc/X11/xorg.conf.d/20-intel.conf
+```
