@@ -15,7 +15,7 @@ xaruc@dfs-guide:~$
 ```
 you may need to run it with `sudo`
 # Chapter 1.1 : Configuring The Kernel
-* we first have to configure and compile the kernel this is (chapter 1.0-1.9) the simplest part of the entire book
+* we first have to configure and compile the kernel this is (chapter 1.0-1.3) the simplest part of the entire book
 * first you need to  fetch the latest kernel at the time writing it is `6.10.7`
 * you need to clone the repository using `git` and enter the directory using `cd` here is how
 ```bash
