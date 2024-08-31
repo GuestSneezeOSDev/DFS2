@@ -23,6 +23,11 @@ Create your own Distro From Scratch with DFS a Free-to-use guide on how to get s
 * [Chapter 5 Further Beyond DFS : Installation Script](#chapter-5-further-beyond-dfs--installation-script)
 * [Chapter 5.1 Further Beyond DFS : Installation Script (The Rootfilesystem)](#chapter-51-further-beyond-dfs--installation-script-the-rootfilesystem)
 * [Chapter  5.2 Further Beyond DFS : Installation Script (Script Development)](#chapter--52-further-beyond-dfs--installation-script-script-development)
+* [Chapter 6 Further Beyond DFS : Package Managers](#chapter-6-further-beyond-dfs--package-managers)
+* [Chapter 6.1 Further Beyond DFS : Package Managers (User-space)](#chapter-61-further-beyond-dfs--package-managers-user-space)
+* [Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)](#chapter-62-further-beyond-dfs-package-managers-the-bootloader)
+* [Chapter 6.3 Further Beyond DFS : Package Managers](#chapter-63-further-beyond-dfs--package-managers)
+
 
 # Chapter 1.0 : Installing Required Dependencies
 ![newbie](https://img.shields.io/badge/Level%20Newbie-green)
