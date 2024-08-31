@@ -382,11 +382,14 @@ ldd nano-X
 mkdir -p /distro/lib/x86_64-linux-gnu/
 mkdir /distro/lib64
 ```
-* You will get an output that looks like
-![image](https://github.com/user-attachments/assets/1125e243-291c-419d-9c23-a5ac319d3e4d)
-* now change these to copy commands such as for example in a line
+* copy the neccassry files
 ```
 cp /lib/x86_64-linux-gnu/libpng16.so.16 ~/dfs-gui/lib/x86_64-linux-gnu/libpng16.so.16
+cp /lib/x86_64-linux-gnu/libz.so.1 ~/dfs-gui/lib/x86_64-linux-gnu/libz.so.1
+cp /lib/x86_64-linux-gnu/libc.so.6 ~/dfs-gui/lib/x86_64-linux-gnu/libc.so.6
+cp /lib/x86_64-linux-gnu/libm.so.6 ~/dfs-gui/lib/x86_64-linux-gnu/libm.so.6
+cp /lib/x86_64-linux-gnu/libbrotlidec.so.1 ~/dfs-gui/lib/x86_64-linux-gnu/libbrotlidec.so.1
+cp /lib64/ld-linux-x86-64.so.2 ~/dfs-gui/lib64/ld-linux-x86-64.so.2
 ```
 * Now run those copy commands , copy the biniaries by copying the whole folder
 ```
