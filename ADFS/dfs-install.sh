@@ -50,6 +50,21 @@ echo "Installing GRUB..."
 echo "Generating GRUB configuration..."
 /usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg
 
+echo '
+set default=0
+set timeout=5
+
+insmod ext2
+
+set root=(hd0,msdos1)
+
+menuentry "DFS-Based OS" {
+    linux /bzImage root=/dev/sda1
+
+    initrd /initrd.img
+}
+' >> /boot/grub/grub.cfg
+
 echo "Configuring fstab..."
 cat <<EOF > /etc/fstab
 $ROOT_PARTITION  /               ext4    defaults        1 1
