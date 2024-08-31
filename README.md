@@ -537,7 +537,7 @@ cd /usr/bin/links/
 ```
 
 # Chapter 3.2 Further Beyond DFS : Mobile Devices (Compiling the Kernel)
-![hard](https://img.shields.io/badge/Level%20EHard-red) 
+![hard](https://img.shields.io/badge/Level%20Hard-red) 
 we will not use any tools such as `buildroot` or `yocto` because I would consider that to be cheating
 * Discard previous code we will need to rebuild the kernel
 ```
@@ -565,7 +565,7 @@ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs
 * move the compiled kernel to the directory
 ```
 mkdir ~/dfs-arm
-mv arch/x86/boot/zImage ~/dfs-arm
+mv zImage ~/dfs-arm
 ```
 # Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)
 * now we will use busybox for the user enviorment
@@ -584,7 +584,7 @@ make -j$(nproc)
 ```
 * Make a new directory called `initramfs` in the OS src/ where busybox will be installed
 ```
-mkdir ~/dfs-arm/initramfs
+mkdir ~/dfs-gui/initramfs
 make CONFIG_PREFIX=/home/$USER/dfs-arm/initramfs install
 ```
 * now enter that directory and we will create another file called init which will load the shell proccess in the kernel
@@ -900,3 +900,161 @@ umount $MOUNT_POINT
 reboot
 ```
 * If you want a finished version click [here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-install.sh)
+
+# Chapter 6 Further Beyond DFS : Package Managers
+![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
+You will need to redo everything
+* Discard previous code we will be recompiling the kernel
+```
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz
+tar xf linux-6.10.7.tar.xz
+make menuconfig
+```
+* Inside of the config menu select
+```
+Device Drivers \
+   Network device support \
+           Ethernet driver support 
+   Wireless \
+            Generic IEEE 802.11 Networking Stack
+```
+* Compile the Kernel (if you want to use ARM follow the ARM and this tutorial)
+```
+make -j$(nproc)
+sudo make modules_install
+sudo make install
+```
+* Move the kernel to the distro directory
+```
+mkdir ~/dfs-distro
+mv arch/x86/boot/bzImage ~/dfs-distro # Change bzImage to zImage if ARM
+```
+# Chapter 6.1 Further Beyond DFS : Package Managers (User-space)
+* Develop the user space
+```
+wget https://busybox.net/downloads/busybox-1.36.1.tar.bz2
+tar xjf busybox-1.36.1.tar.bz2
+cd busybox-1.36.1
+```
+* Configure busybox to build statically (select Build static binary (no shared libs) (NEW)
+```
+make menuconfig
+```
+* Compile busybox
+```
+make -j$(nproc)
+mkdir ~/dfs-distro/initramfs
+make CONFIG_PREFIX=/home/$USER/dfs-distro/initramfs install
+```
+create a new file called `init`
+```
+cd ~/dfs-distro/initramfs
+touch init
+echo "#!/bin/sh
+
+/bin/sh" >> init
+chmod +x init
+```
+* Implement the Links Browser
+```zsh
+cd ~/
+wget https://raw.githubusercontent.com/spartrekus/links2/master/links-1.03.tar.gz
+tar xzf links-1.03
+cd links-1.03
+./configure
+make
+sudo make install
+find . -name 'links*' -type f
+mkdir -p ~/dfs-distro/usr/bin/links/
+mv links ~/dfs-distro/usr/bin/links/links
+cd ~/dfs-distro/usr/bin/links/
+chmod +x link
+```
+* Create a CPIO archive
+```
+find . | cpio -o -H newc ../init.cpio
+```
+# Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)
+* Use a utility like `dd` to create the boot image
+```
+dd if=/dev/zero of=boot.img bs=1M count=50
+ls
+```
+
+* Create a FAT fs on the boot
+```
+mkfs.vfat boot.img
+```
+* Create a new directory called BOOT-DFS for us to copy the Compiled (OS) files to the image
+```
+mkdir BOOT-DFS
+mount boot.img BOOT-DFS
+cp zImage init.cpio BOOT-DFS
+```
+unmount
+```
+umount BOOT-DFS
+```
+# Chapter 6.3 Further Beyond DFS : Package Managers
+Now we can continue work on the Package Installer/Manager
+* we will need to port wget on your host system run, I also recommend porting the installer packages so the installer packages can work
+```
+wget https://ftp.gnu.org/gnu/wget/wget-latest.tar.gz
+tar xzf wget-latest.tar.gz
+cd wget-1.24.5
+```
+* Now Compile wget
+```
+./configure --prefix=$HOME/dfs-distro --exec-prefix=$HOME/dfs-distro --with-ssl=openssl
+make
+sudo make install
+```
+* Implement it to the OS
+```
+cd dfs-distro
+```
+
+* Create a directory structure for your repository. For example:
+```
+/repo
+  /packages
+    package1 # This can be tar for example
+    package2 # This can be grub
+```
+* Package Manager : You will need to develop the Package manager by either creating it with shell or python, we will use shell since we want users to be able to run it by just typing `./usr/bin/package-manager` in the terminal
+* Create the variables
+```
+PACKAGE_NAME="$1"
+REPO_URL="http://github.com/username/repo # Replace the Username with your username"
+INSTALL_DIR="/root"  # Change this to your desired install directory
+```
+
+* Check if the package is provided
+```
+if [ -z "$PACKAGE_NAME" ]; then
+  echo "Usage: $0 <package_name>"
+  exit 1
+fi
+```
+
+* Construct the Package file name
+```
+PACKAGE_FILE="${PACKAGE_NAME}"
+```
+* Download the Package
+```
+wget -q "$REPO_URL/$PACKAGE_FILE" -O "$PACKAGE_FILE"
+```
+
+* Check if Download was successful
+```
+if [ ! -f "$PACKAGE_FILE" ]; then
+  echo "Package not found or failed to download."
+  exit 1
+fi
+```
+* Tell User Package was installed
+```
+echo "Package $PACKAGE_NAME installed successfully."
+```
+And you have Successfully made A Package Manager if you want a finished version click [here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-pkg.sh)
