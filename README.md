@@ -565,7 +565,7 @@ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs
 * move the compiled kernel to the directory
 ```
 mkdir ~/dfs-arm
-mv zImage ~/dfs-arm
+mv arch/x86/boot/zImage ~/dfs-arm
 ```
 # Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)
 * now we will use busybox for the user enviorment
