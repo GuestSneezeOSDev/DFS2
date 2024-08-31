@@ -10,7 +10,7 @@ Create your own Distro From Scratch with DFS a Free-to-use guide on how to get s
 * [Chapter 1.3 : The Bootloader](#chapter-13--the-bootloader)
 * [Chapter 2.0 : Creating the ISO](#chapter-20--creating-the-iso)
 * [Chapter 2.1 Further Beyond DFS: GUI](#chapter-21-further-beyond-dfs-gui)
-   * [Chapter 2.2 Further Beyond DFS: User-space](#chapter-22-further-beyond-dfs-user-space)
+* [Chapter 2.2 Further Beyond DFS: User-space](#chapter-22-further-beyond-dfs-user-space)
 * [Chapter 2.3 Further Beyond DFS : The Desktop Enviorment](#chapter-23-further-beyond-dfs--the-desktop-enviorment)
 * [Chapter 2.4 Further Beyond DFS : Bootloader &amp; ISO](#chapter-24-further-beyond-dfs--bootloader--iso)
 * [Chapter 3 Further Beyond DFS: How to port xorg](#chapter-3-further-beyond-dfs-how-to-port-xorg)
