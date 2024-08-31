@@ -1,4 +1,5 @@
 # DFS Project
+**If you plan to use this guide to compile your own OS you must mention this guide**
 Create your own Distro From Scratch with DFS a Free-to-use guide on how to get started building your Linux Distro
 
 # Chapter 1.0 : Installing Required Dependencies
@@ -96,7 +97,7 @@ find . | cpio -o -H newc ../init.cpio
 * if you go one directory back you will find the `init.cpio` file, we will use the syslinux bootloader
 
 # Chapter 1.3 : The Bootloader
-* we will usea utility called `dd` which will allow us to create the bootloader
+* we will use a utility called `dd` which will allow us to create the bootloader
 ```
 dd if=/dev/zero of=boot.img bs=1M count=50
 ls
@@ -112,7 +113,7 @@ syslinux boot.img
 * we still need to copy the `init.cpio` and `bzImage` to the `syslinux` bootloader, we will create a new directory we will call it as `BOOTLOADER` so we will copy those files to the `BOOTLOADER` directory
 ```
 mkdir BOOTLOADER
-mount boot BOOTLOADER
+mount boot.img BOOTLOADER
 cp bzImage init.cpio BOOTLOADER
 ```
 * now you can unmount it
@@ -123,7 +124,7 @@ you could finish here but if you want to create an ISO continue
 
 # Chapter 2.0 : Creating the ISO
 ![newbie](https://img.shields.io/badge/Level%20Newbie-green)
-* Install the Necassary Packages we will need `xorriso` to create a new ISO format for our Image
+* Install the Necessary Packages we will need `xorriso` to create a new ISO format for our Image
 ```
 sudo apt-get install xorriso genisoimage
 ```
@@ -512,3 +513,368 @@ chmod +x link
 cd /usr/bin/links/
 ./links www.url-to-site.com
 ```
+
+# Chapter 3.2 Further Beyond DFS : Mobile Devices (Compiling the Kernel)
+![hard](https://img.shields.io/badge/Level%20EHard-red) 
+we will not use any tools such as `buildroot` or `yocto` because I would consider that to be cheating
+* Discard previous code we will need to rebuild the kernel
+```
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz
+tar -xf linux-6.10.7.tar.xz
+cd linux-6.10.7
+```
+* Edit the config (to do what ever you want)
+```
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs
+```
+* Compile the Kernel and install dependencies
+```
+sudo apt-get install gcc-arm-linux-gnueabihf
+make ARCH=arm defconfig
+```
+* Build the kernel using the cross-compiler
+```
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage
+```
+* Compile Device Tree (if needed):
+```
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs
+```
+* move the compiled kernel to the directory
+```
+mkdir ~/dfs-arm
+mv zImage ~/dfs-arm
+```
+# Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)
+* now we will use busybox for the user enviorment
+```
+wget https://busybox.net/downloads/busybox-1.36.1.tar.bz2
+tar xjf busybox-1.36.1.tar.bz2
+cd busybox-1.36.1
+```
+* Configure busybox to build statically (select `Build static binary (no shared libs) (NEW`)
+```
+make menuconfig
+```
+* After that hit `ESC` Key 2 times hit yes and then compile it using
+```
+make -j$(nproc)
+```
+* Make a new directory called `initramfs` in the OS src/ where busybox will be installed
+```
+mkdir ~/dfs-gui/initramfs
+make CONFIG_PREFIX=/home/$USER/dfs-arm/initramfs install
+```
+* now enter that directory and we will create another file called init which will load the shell proccess in the kernel
+```
+cd ~/dfs-arm/initramfs
+touch init
+echo "#!/bin/sh
+
+/bin/sh" >> init
+```
+* add executionable permissions to the `init` file
+```
+chmod +x init
+```
+* Implement the links browser to the usr directory
+```zsh
+cd ~/
+wget https://raw.githubusercontent.com/spartrekus/links2/master/links-1.03.tar.gz
+tar xzf links-1.03
+cd links-1.03
+./configure
+make
+sudo make install
+find . -name 'links*' -type f
+mkdir -p ~/dfs-arm/usr/bin/links/
+mv links ~/dfs-arm/usr/bin/links/links
+cd ~/dfs-arm/usr/bin/links/
+chmod +x link
+```
+* Create the `cpio` archive
+```
+find . | cpio -o -H newc ../init.cpio
+```
+# Chapter 3.3 Further Beyond DFS : Mobile Devices (The Bootloader)
+* Use a utility called `dd` to create the bootloader
+```
+dd if=/dev/zero of=boot.img bs=1M count=50
+ls
+```
+* Create a FAT Filesystem to the `boot` image
+```
+mkfs.vfat boot.img
+```
+* Create a new directory called `BOOT-DFS` for us to copy the Compiled (OS) files to the image
+```
+mkdir BOOT-DFS
+mount boot.img BOOT-DFS
+cp zImage init.cpio BOOT-DFS
+```
+* Unmount
+```
+umount BOOT-DFS
+```
+# Chapter 3.4 Further Beyond DFS : Mobile Devices (Creating The ISO)
+* Install the Necessary packages
+```
+sudo apt-get install xorriso genisoimage
+```
+* Create the ISO directory
+```
+mkdir -p ~/dfs-iso/iso/{boot,rootfs}
+```
+* now copy the Kernel and Initramfs and Syslinux:
+```
+cp ~/dfs-arm/BOOT-DFS/zImage ~/dfs-iso/boot/
+cp ~/dfs-arm/BOOT-DFS/init.cpio ~/dfs-iso/boot/
+cp ~/dfs-arm/boot.img ~/dfs-iso/boot/
+```
+* Create the ISO Image Using `xorriso`:
+```
+xorriso -as mkisofs \
+    -r -V "DFS_Linux" \
+    -b boot.syslinux \
+    -no-emul-boot \
+    -boot-load-size 4 \
+    -boot-info-table \
+    -o ~/dfs-iso/dfs-linux.iso \
+    ~/dfs-iso
+```
+You have Created an ARM-based kernel it was'nt that hard right?
+# Chapter 5 Further Beyond DFS : Installation Script
+![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical) 
+For Users to install your OS you will need an Installation script for users to install your OS but first we need to go over some rules
+1. We cant use any language other than shell
+2. we can't use bash or zsh we can only use the shell that the kernel and busybox comes preinstalled with
+3. We have to port more programs
+
+* Obtain FDISK's source code
+```
+wget https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/util-linux-2.39.tar.xz
+```
+* Extract the source code
+```
+tar -xvf util-linux-2.39.tar.xz
+cd util-linux-2.39
+```
+* Configure , Build and compile `fdisk`
+```
+./configure --without-ncurses --disable-all-programs --enable-fdisk
+make fdisk
+```
+* Copy `fdisk` to the distro
+```
+cp disk-utils/fdisk ~/dfs-distro/usr/sbin/fdisk
+```
+* Add Necessary Libraries, Use ldd to check the libraries fdisk depends on:
+```
+ldd disk-utils/fdisk
+```
+
+* Copy these libraries to your root filesystem, ensuring they are placed in the correct directories (`/lib` or `/lib64`). If the binary is too large, you can strip it to remove unnecessary symbols:
+```
+strip ~/dfs-distro/usr/sbin/mkfs.ext4
+```
+* Copy any necessary libraries to your distro’s lib or lib64 directories.
+* If size is a concern, you can strip unnecessary symbols from the binary
+```
+strip ~/distro/usr/sbin/fdisk
+```
+
+* Now we need to port `mkfs`. Obtain the Source Code
+```
+wget https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/1.46.5/e2fsprogs-1.46.5.tar.gz
+tar -xzf e2fsprogs-1.46.5.tar.gz
+cd e2fsprogs-1.46.5
+```
+* Configure , Build and Compile `ep2fsprogs`
+```
+./configure --disable-shared --enable-static
+make mkfs.ext4
+```
+* After building, you’ll need to copy the binary and its dependencies to your root filesystem.
+```
+cp mke2fs/mkfs.ext4 ~/dfs-distro/usr/sbin/
+```
+* Include Necessary Libraries
+```
+ldd ~/dfs-distro/usr/sbin/mkfs.ext4
+```
+
+* Now port `tar` so obtain it's source code
+```
+wget https://ftp.gnu.org/gnu/tar/tar-1.34.tar.gz
+tar -xzf tar-1.34.tar.gz
+cd tar-1.34
+```
+* Now configure,build and Compile
+```
+./configure --disable-shared --enable-static
+make
+```
+* Copy the binary to the Root filesystem
+```
+cp src/tar ~/dfs-distro/usr/sbin/
+```
+* Include Necessary Libraries, Copy these libraries to the appropriate directories (`/lib`, `/lib64`, etc.) in your root filesystem.
+```
+ldd ~/dfs-distro/usr/sbin/tar
+```
+* If the binary is too large, you can strip it to reduce its size:
+```
+strip ~/dfs-distro/usr/sbin/tar
+```
+
+* Port GRUB Obtain the source
+```
+wget https://ftp.gnu.org/gnu/grub/grub-2.06.tar.gz
+tar -xzf grub-2.06.tar.gz
+cd grub-2.06
+```
+
+* Configure and Compile GRUB
+```
+./configure --prefix=/home/$USER/dfs-distro/usr --with-platform=pc --target=x86_64 # For BIOS
+make
+make install
+```
+* Use LDD to implement missing libraries,Copy any required libraries to `/lib` or `/lib64` in your root filesystem.
+```
+ldd ~/dfs-distro/usr/bin/grub-install
+ldd ~/dfs-distro/usr/sbin/grub-mkconfig
+```
+
+
+# Chapter 5.1 Further Beyond DFS : Installation Script (The Rootfilesystem)
+* Now we need the root filesystem `tar.gz` so we will need to run this
+```
+cd ~/
+tar -czvf rootfs.tar.gz dfs-distro
+```
+* Move the `.tar.gz` to the `dfs-distro` directory and create standard unix partitions
+```
+cp -r rootfs.tar.gz dfs-distro
+cd dfs-distro
+mkdir var etc root tmp dev proc
+```
+* Port Chroot Obtain its source code
+```
+wget https://ftp.gnu.org/gnu/coreutils/coreutils-9.2.tar.xz
+tar -xf coreutils-9.2.tar.xz
+cd coreutils-9.2
+```
+* Configure the Build
+```
+./configure --prefix=/home/$USER/dfs-distro/usr
+```
+* Compile and install chroot onto the `rootfs`
+```
+make
+make install
+```
+* Ensure the chroot binary contains all of its dependencies 
+```
+ldd ~/dfs-distro/usr/bin/chroot
+```
+
+
+# Chapter  5.2 Further Beyond DFS : Installation Script (Script Development)
+We will start to work on the Script also please do not run these commands add these commands to the script I will call mine `install.sh`
+* First set the shell enviorment, this will tell the OS we are using this type of shell, we have not implemented bash or zsh so we will use the default shell
+```
+#!/bin/sh
+```
+* Set some variables
+```
+DISK="/dev/sda"
+BOOT_PARTITION="${DISK}1"
+ROOT_PARTITION="${DISK}2"
+MOUNT_POINT="/mnt"
+ROOTFS_TARBALL="/path/to/rootfs.tar.gz"
+KERNEL_IMAGE="/BOOTLOADER/bzImage"     # If you are creating an ARM DFS distro please replace bzImage with zImage
+INITRD_IMAGE="/BOOTLOADER/initrd.img"  # Adjust this if you have an initrd image
+```
+* Partition Disks
+```
+echo "Partitioning the disk..."
+fdisk $DISK <<EOF
+o      # Create a new DOS partition table
+n      # Add a new partition
+p      # Primary partition
+1      # Partition number
+        # Default - start at beginning of disk 
++500M  # Boot partition size
+n      # Add a new partition
+p      # Primary partition
+2      # Partition number
+        # Default - start immediately after the previous partition
+        # Default - extend to the end of the disk
+a      # Make a partition bootable
+1      # Mark the boot partition
+w      # Write the changes to disk
+EOF
+```
+* Format the Partitions
+```
+echo "Formatting the partitions..."
+/usr/sbin/mkfs.ext4 $BOOT_PARTITION
+/usr/sbin/mkfs.ext4 $ROOT_PARTITION
+```
+* Mount the Partitions
+```
+echo "Mounting the partitions..."
+mkdir -p $MOUNT_POINT
+mount $ROOT_PARTITION $MOUNT_POINT
+mkdir -p $MOUNT_POINT/boot
+mount $BOOT_PARTITION $MOUNT_POINT/boot
+```
+* Extract the Root filesystem
+```
+echo "Extracting the root filesystem..."
+/usr/sbin/tar -xzf $ROOTFS_TARBALL -C $MOUNT_POINT
+```
+* Install GRUB And Configure FSTAB in a Chroot Enviormet
+```bash
+echo "Entering the new root environment with chroot..."
+/usr/bin/chroot $MOUNT_POINT /bin/sh <<EOF_CHROOT
+
+echo "Installing GRUB..."
+/usr/sbin/grub-install --target=i386-pc --boot-directory=/boot $DISK
+
+echo "Generating GRUB configuration..."
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg
+
+echo '
+set default=0
+set timeout=5
+
+insmod ext2
+
+set root=(hd0,msdos1)
+
+menuentry "DFS-Based OS" {
+    linux /bzImage root=/dev/sda1
+
+    initrd /initrd.img
+}
+' >> /boot/grub/grub.cfg
+
+echo "Configuring fstab..."
+cat <<EOF > /etc/fstab
+$ROOT_PARTITION  /               ext4    defaults        1 1
+$BOOT_PARTITION  /boot           ext4    defaults        1 2
+EOF
+
+EOF_CHROOT
+```
+* Unmount and Reboot the system
+```
+
+echo "Installation complete. Unmounting and rebooting..."
+umount $MOUNT_POINT/boot
+umount $MOUNT_POINT
+reboot
+```
+* If you want a finished version click [here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-install.sh)
