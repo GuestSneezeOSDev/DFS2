@@ -2,6 +2,27 @@
 **If you plan to use this guide to compile your own OS you must mention this guide**
 Create your own Distro From Scratch with DFS a Free-to-use guide on how to get started building your Linux Distro
 
+**TABLE OF CONTENTS**
+* [DFS Project](#dfs-project)
+* [Chapter 1.0 : Installing Required Dependencies](#chapter-10--installing-required-dependencies)
+* [Chapter 1.1 : Configuring The Kernel](#chapter-11--configuring-the-kernel)
+* [Chapter 1.2 : The User Space](#chapter-12--the-user-space)
+* [Chapter 1.3 : The Bootloader](#chapter-13--the-bootloader)
+* [Chapter 2.0 : Creating the ISO](#chapter-20--creating-the-iso)
+* [Chapter 2.1 Further Beyond DFS: GUI](#chapter-21-further-beyond-dfs-gui)
+   * [Chapter 2.2 Further Beyond DFS: User-space](#chapter-22-further-beyond-dfs-user-space)
+* [Chapter 2.3 Further Beyond DFS : The Desktop Enviorment](#chapter-23-further-beyond-dfs--the-desktop-enviorment)
+* [Chapter 2.4 Further Beyond DFS : Bootloader &amp; ISO](#chapter-24-further-beyond-dfs--bootloader--iso)
+* [Chapter 3 Further Beyond DFS: How to port xorg](#chapter-3-further-beyond-dfs-how-to-port-xorg)
+* [Chapter 3.1 Further Beyond DFS : Porting A Browser](#chapter-31-further-beyond-dfs--porting-a-browser)
+* [Chapter 3.2 Further Beyond DFS : Mobile Devices (Compiling the Kernel)](#chapter-32-further-beyond-dfs--mobile-devices-compiling-the-kernel)
+* [Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)](#chapter-33-further-beyond-dfs--mobile-devices-compiling-the-user-space)
+* [Chapter 3.3 Further Beyond DFS : Mobile Devices (The Bootloader)](#chapter-33-further-beyond-dfs--mobile-devices-the-bootloader)
+* [Chapter 3.4 Further Beyond DFS : Mobile Devices (Creating The ISO)](#chapter-34-further-beyond-dfs--mobile-devices-creating-the-iso)
+* [Chapter 5 Further Beyond DFS : Installation Script](#chapter-5-further-beyond-dfs--installation-script)
+* [Chapter 5.1 Further Beyond DFS : Installation Script (The Rootfilesystem)](#chapter-51-further-beyond-dfs--installation-script-the-rootfilesystem)
+* [Chapter  5.2 Further Beyond DFS : Installation Script (Script Development)](#chapter--52-further-beyond-dfs--installation-script-script-development)
+
 # Chapter 1.0 : Installing Required Dependencies
 ![newbie](https://img.shields.io/badge/Level%20Newbie-green)
 * we will require a few dependencies to configure , build and use the kernel here are a few packages we may need
