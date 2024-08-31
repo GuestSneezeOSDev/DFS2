@@ -432,10 +432,7 @@ qemu-system-x86_64 -cdrom ~/dfs-iso/dfs-gui.iso
 If you get any issues create a new issue
 
 # Chapter 3 Further Beyond DFS: How to port `xorg`
-> ![IMPORTANT]
-> Do not use this part yet since it is not ready and is in heavy development changes may occur
-
-![Hard](https://img.shields.io/badge/Level%Hard-red) 
+![Hard](https://img.shields.io/badge/Level%20Hard-red) 
 This is hard and we do not recommend this to beginners please make sure you have a good understanding of Unix , Linux and The Previous Chapters so you can get a better understanding of how you can do this
 
 * Make sure you have the source code of the GUI ISO so you can continue
@@ -475,4 +472,43 @@ sudo make install
 ```
 sudo mkdir -p /home/$USER/dfs-gui/etc/X11/xorg.conf.d/
 sudo nano /home$USER/dfs-gui/etc/X11/xorg.conf.d/20-intel.conf
+```
+
+# Chapter 3.1 Further Beyond DFS : Porting A Browser
+![Hard](https://img.shields.io/badge/Level%20Hard-red) 
+
+we will port `links2` since it is a terminal-based
+
+```
+wget https://raw.githubusercontent.com/spartrekus/links2/master/links-1.03.tar.gz
+tar xzf links-1.03
+cd links-1.03
+```
+* Now lets configure the build
+```
+./configure
+```
+* Now we have a `Makefile` so we can compile it
+```
+make
+sudo make install
+```
+* now you have the compiled binary run this command to find it
+```
+find . -name 'links*' -type f
+```
+* now make a new directory inside of the distro src/ and move the `link` browser binary to that directory
+```
+mkdir -p ~/dfs-gui/usr/bin/links/
+mv links ~/dfs-gui/usr/bin/links/links
+```
+* Give it executable permissions
+```
+cd ~/dfs-gui/usr/bin/links/
+chmod +x link
+```
+* Now compile it then you will have a browser then you will be able to use the browser, once you have booted to your distro type
+```
+cd /usr/bin/links/
+./links www.url-to-site.com
 ```
