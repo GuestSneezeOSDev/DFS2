@@ -584,7 +584,7 @@ make -j$(nproc)
 ```
 * Make a new directory called `initramfs` in the OS src/ where busybox will be installed
 ```
-mkdir ~/dfs-gui/initramfs
+mkdir ~/dfs-arm/initramfs
 make CONFIG_PREFIX=/home/$USER/dfs-arm/initramfs install
 ```
 * now enter that directory and we will create another file called init which will load the shell proccess in the kernel
