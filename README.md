@@ -821,8 +821,8 @@ BOOT_PARTITION="${DISK}1"
 ROOT_PARTITION="${DISK}2"
 MOUNT_POINT="/mnt"
 ROOTFS_TARBALL="/path/to/rootfs.tar.gz"
-KERNEL_IMAGE="/BOOTLOADER/bzImage"     # If you are creating an ARM DFS distro please replace bzImage with zImage
-INITRD_IMAGE="/BOOTLOADER/initrd.img"  # Adjust this if you have an initrd image
+KERNEL_IMAGE="/boot/bzImage"     # If you are creating an ARM DFS distro please replace bzImage with zImage
+INITRD_IMAGE="/boot/inut.cpio"  # Adjust this if you have an initrd image
 ```
 * Partition Disks
 ```
