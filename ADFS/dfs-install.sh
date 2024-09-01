@@ -6,9 +6,9 @@ DISK="/dev/sda"
 BOOT_PARTITION="${DISK}1"
 ROOT_PARTITION="${DISK}2"
 MOUNT_POINT="/mnt"
-ROOTFS_TARBALL="/path/to/rootfs.tar.gz"
-KERNEL_IMAGE="/BOOTLOADER/bzImage"     # If you are creating an ARM DFS distro please replace bzImage with zImage
-INITRD_IMAGE="/BOOTLOADER/initrd.img"  # Adjust this if you have an initrd image
+ROOTFS_TARBALL="/rootfs.tar.gz"
+KERNEL_IMAGE="/boot/init.cpio"     # If you are creating an ARM DFS distro please replace bzImage with zImage
+INITRD_IMAGE="/boot/init.cpio"  # Adjust this if you have an initrd image
 
 echo "Partitioning the disk..."
 fdisk $DISK <<EOF
