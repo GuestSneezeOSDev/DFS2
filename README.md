@@ -1062,4 +1062,4 @@ fi
 ```
 echo "Package $PACKAGE_NAME installed successfully."
 ```
-And you have Successfully made A Package Manager if you want a finished version click [here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-pkg.sh)
+And you have Successfully made A Package Manager if you want a finished version [click here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-pkg.sh)
