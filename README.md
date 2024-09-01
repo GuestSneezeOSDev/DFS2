@@ -1064,3 +1064,39 @@ fi
 echo "Package $PACKAGE_NAME installed successfully."
 ```
 And you have Successfully made A Package Manager if you want a finished version [click here](https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-pkg.sh)
+
+# Chapter 7 Further Beyond DFS : Wine
+![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
+You most likely want to port `wine`, but first make sure `32 BIT` programs are supported in your kernel else Wine will not work, there is a way to get around this but this wont support most applications
+* Download the official Wine git repository
+```
+git clone https://gitlab.winehq.org/wine/wine.git
+cd wine
+```
+* Build standard Wine with support for both 32-bit and 64-bit Windows programs, First we need to build for `win64`
+```
+mkdir win64
+cd win64
+../configure CC="ccache gcc" CROSSCC="ccache x86_64-w64-mingw32-gcc" --enable-win64
+make -j $(nproc)
+```
+* Build for `win32`
+```
+cd ..
+mkdir win32
+cd win32
+../configure CC="ccache gcc" CROSSCC="ccache i686-w64-mingw32-gcc" --with-wine64=../win64
+make -j $(nproc)
+cd ..
+```
+* Now you have wine configured now we should add it to our PACKAGE REPOSITORY
+```
+git clone https://github.com/YourUsername/YourRepository
+cd YourRepository
+cp -r ~/path/to/compiled/wine .
+git add .
+git commit -m "Wine"
+git push origin your-branch
+git request-pull
+```
+And you have successfully done it
