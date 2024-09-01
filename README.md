@@ -27,6 +27,7 @@ Create your own Distro From Scratch with DFS a Free-to-use guide on how to get s
 * [Chapter 6.1 Further Beyond DFS : Package Managers (User-space)](#chapter-61-further-beyond-dfs--package-managers-user-space)
 * [Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)](#chapter-62-further-beyond-dfs-package-managers-the-bootloader)
 * [Chapter 6.3 Further Beyond DFS : Package Manager (Development)](#chapter-63-further-beyond-dfs--package-managers)
+* [Chapter 7 Further Beyond DFS : Wine](#chapter-7-further-beyond-dfs--wine)
 
 
 # Chapter 1.0 : Installing Required Dependencies
