@@ -626,6 +626,7 @@ find . | cpio -o -H newc ../init.cpio
 # Chapter 3.3 Further Beyond DFS : Mobile Devices (The Bootloader)
 * Use a utility called `dd` to create the bootloader
 ```
+cd ..
 dd if=/dev/zero of=boot.img bs=1M count=50
 ls
 ```
