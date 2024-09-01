@@ -1101,3 +1101,62 @@ git push origin your-branch
 git request-pull
 ```
 And you have successfully done it
+
+# Chapter 7.1 : Creating your own Bootloader
+![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
+If you want to create your own bootloader for your Distro this chapter will guide you, this will teach you how to write a bootloader from scratch which will boot to your linux kernel
+
+* Create a new file called `bootloader.asm`
+```
+mkdir dfs-bootloader
+cd dfs-bootloader
+touch bootloader.asm
+
+echo "org 0x7c00              ; Boot sector starts here
+
+; Function to read a sector from the disk
+read_sector:
+    mov ah, 0x02       ; BIOS interrupt for disk read
+    mov al, 1          ; Number of sectors to read
+    mov ch, 0          ; Cylinder number
+    mov cl, 2          ; Sector number (starting sector for kernel)
+    mov dh, 0          ; Head number
+    mov dl, 0x80       ; Drive number (first hard disk)
+    int 0x13           ; Call BIOS interrupt
+    jc disk_error      ; Jump if there is a carry (error)
+
+    ret
+
+disk_error:
+    ; Simple error handling
+    hlt
+
+; Read kernel (assuming it's at sector 2)
+call read_sector
+
+; Read initramfs (assuming it's at sector 3)
+mov cl, 3
+call read_sector
+
+; Jump to kernel (assumes kernel is at 0x1000)
+jmp 0x1000
+
+times 510 - ($ - $$) db 0 ; Fill the rest of the boot sector with zeros
+dw 0xaa55               ; Boot sector signature" >> bootloader.asm
+```
+* Use NASM to assemble the bootloader.
+```
+nasm -f bin bootloader.asm -o bootloader.bin
+```
+* alternatively you can create a new image with the bootloader using this technique
+```
+dd if=/dev/zero of=distro.img bs=1M count=512
+ls -lh disk.img
+dd if=bootloader.bin of=distro.img bs=512 count=1 conv=notrunc # Write the bootloader
+dd if=/home/$USER/dfs-iso/boot/bzImage of=distro.img bs=512 seek=2 conv=notrunc # Write the kernel change to zImage if ARM
+dd if=/home/$USER/dfs-iso/boot/init.cpio of=distro.img bs=512 seek=3 conv=notrunc
+```
+* Test the image
+```
+qemu-system-x86_64 -drive format=raw,file=distro.img
+```
