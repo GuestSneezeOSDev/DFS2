@@ -1164,6 +1164,7 @@ qemu-system-x86_64 -drive format=raw,file=distro.img
 
 # Chapter 8 Text Editors
 We will use `nano` for the text editor because it is stable and `vim` changes every day (every 5 hours)
+![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
 * Obtain `ncurses` library
 ```
 wget http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.6.tar.gz
