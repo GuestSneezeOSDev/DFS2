@@ -1,5 +1,6 @@
 # DFS Project
 **If you plan to use this guide to compile your own OS you must mention this guide**
+**You will need over 20-40 GiB if you want to complete this entire guide**
 
 Create your own Distro From Scratch with DFS a Free-to-use guide on how to get started building your Linux Distro
 
@@ -1160,3 +1161,32 @@ dd if=/home/$USER/dfs-iso/boot/init.cpio of=distro.img bs=512 seek=3 conv=notrun
 ```
 qemu-system-x86_64 -drive format=raw,file=distro.img
 ```
+
+# Chapter 8 Text Editors
+We will use `nano` for the text editor because it is stable and `vim` changes every day (every 5 hours)
+* Obtain `ncurses` library
+```
+wget http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.6.tar.gz
+tar xzf ncurses-5.6.tar.gz
+cd ncurses-5.6
+```
+* Compile `ncures`
+```
+./configure --prefix=/home/$USER/dfs-distro/usr
+make
+make install
+```
+
+* Obtain `nano` source
+```
+wget https://ftp.gnu.org/pub/gnu/nano/nano-8.1.tar.gz
+tar xzf nano-8.1.tar.gz
+cd nano-8.1
+```
+* Now compile `nano`
+```
+./configure --prefix=/home/$USER/dfs-distro/usr
+make
+make install
+```
+You have now ported `nano`
