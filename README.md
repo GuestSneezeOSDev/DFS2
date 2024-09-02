@@ -29,6 +29,8 @@ Create your own Distro From Scratch with DFS a Free-to-use guide on how to get s
 * [Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)](#chapter-62-further-beyond-dfs-package-managers-the-bootloader)
 * [Chapter 6.3 Further Beyond DFS : Package Manager (Development)](#chapter-63-further-beyond-dfs--package-managers)
 * [Chapter 7 Further Beyond DFS : Wine](#chapter-7-further-beyond-dfs--wine)
+* [Chapter 7.1 Further Beyond DFS : Using a custom bootloader](#chapter-71-further-beyond-dfs--Creating-your-own-bootloader)
+* [Chapter 8 Further Beyond DFS : Text Editors (NANO)](#chapter-8-further-beyond-dfs--text-editors)
 
 
 # Chapter 1.0 : Installing Required Dependencies
@@ -1103,7 +1105,7 @@ git request-pull
 ```
 And you have successfully done it
 
-# Chapter 7.1 : Creating your own Bootloader
+# Chapter 7.1 Further Beyond DFS: Creating your own Bootloader
 ![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
 If you want to create your own bootloader for your Distro this chapter will guide you, this will teach you how to write a bootloader from scratch which will boot to your linux kernel
 
@@ -1162,7 +1164,7 @@ dd if=/home/$USER/dfs-iso/boot/init.cpio of=distro.img bs=512 seek=3 conv=notrun
 qemu-system-x86_64 -drive format=raw,file=distro.img
 ```
 
-# Chapter 8 Text Editors
+# Chapter 8 Further Beyond DFS : Text Editors
 We will use `nano` for the text editor because it is stable and `vim` changes every day (every 5 hours)
 ![critical](https://img.shields.io/badge/Level%20Extremely%20Hard-critical)
 * Obtain `ncurses` library
