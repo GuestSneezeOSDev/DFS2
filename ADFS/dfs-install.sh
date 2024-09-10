@@ -7,7 +7,7 @@ BOOT_PARTITION="${DISK}1"
 ROOT_PARTITION="${DISK}2"
 MOUNT_POINT="/mnt"
 ROOTFS_TARBALL="/rootfs.tar.gz"
-KERNEL_IMAGE="/boot/init.cpio"     # If you are creating an ARM DFS distro please replace bzImage with zImage
+KERNEL_IMAGE="/boot/bzImage"     # If you are creating an ARM DFS distro please replace bzImage with zImage
 INITRD_IMAGE="/boot/init.cpio"  # Adjust this if you have an initrd image
 
 echo "Partitioning the disk..."
