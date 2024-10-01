@@ -1,0 +1,847 @@
+<h1 id="dfs-project">DFS Project</h1>
+<p><strong>If you plan to use this guide to compile your own OS you must mention this guide</strong>
+<strong>You will need over 20-40 GiB if you want to complete this entire guide</strong></p>
+<p>Create your own Distro From Scratch with DFS a Free-to-use guide on how to get started building your Linux Distro</p>
+<p><strong>TABLE OF CONTENTS</strong></p>
+<ul>
+<li><a href="#dfs-project">DFS Project</a></li>
+<li><a href="#chapter-10--installing-required-dependencies">Chapter 1.0 : Installing Required Dependencies</a></li>
+<li><a href="#chapter-11--configuring-the-kernel">Chapter 1.1 : Configuring The Kernel</a></li>
+<li><a href="#chapter-12--the-user-space">Chapter 1.2 : The User Space</a></li>
+<li><a href="#chapter-13--the-bootloader">Chapter 1.3 : The Bootloader</a></li>
+<li><a href="#chapter-20--creating-the-iso">Chapter 2.0 : Creating the ISO</a></li>
+<li><a href="#chapter-21-further-beyond-dfs-gui">Chapter 2.1 Further Beyond DFS: GUI</a></li>
+<li><a href="#chapter-22-further-beyond-dfs-user-space">Chapter 2.2 Further Beyond DFS: User-space</a></li>
+<li><a href="#chapter-23-further-beyond-dfs--the-desktop-enviorment">Chapter 2.3 Further Beyond DFS : The Desktop Enviorment</a></li>
+<li><a href="#chapter-24-further-beyond-dfs--bootloader--iso">Chapter 2.4 Further Beyond DFS : Bootloader &amp; ISO</a></li>
+<li><a href="#chapter-3-further-beyond-dfs-how-to-port-xorg">Chapter 3 Further Beyond DFS: How to port xorg</a></li>
+<li><a href="#chapter-31-further-beyond-dfs--porting-a-browser">Chapter 3.1 Further Beyond DFS : Porting A Browser</a></li>
+<li><a href="#chapter-32-further-beyond-dfs--mobile-devices-compiling-the-kernel">Chapter 3.2 Further Beyond DFS : Mobile Devices (Compiling the Kernel)</a></li>
+<li><a href="#chapter-33-further-beyond-dfs--mobile-devices-compiling-the-user-space">Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)</a></li>
+<li><a href="#chapter-33-further-beyond-dfs--mobile-devices-the-bootloader">Chapter 3.3 Further Beyond DFS : Mobile Devices (The Bootloader)</a></li>
+<li><a href="#chapter-34-further-beyond-dfs--mobile-devices-creating-the-iso">Chapter 3.4 Further Beyond DFS : Mobile Devices (Creating The ISO)</a></li>
+<li><a href="#chapter-5-further-beyond-dfs--installation-script">Chapter 5 Further Beyond DFS : Installation Script</a></li>
+<li><a href="#chapter-51-further-beyond-dfs--installation-script-the-rootfilesystem">Chapter 5.1 Further Beyond DFS : Installation Script (The Rootfilesystem)</a></li>
+<li><a href="#chapter--52-further-beyond-dfs--installation-script-script-development">Chapter  5.2 Further Beyond DFS : Installation Script (Script Development)</a></li>
+<li><a href="#chapter-6-further-beyond-dfs--package-managers">Chapter 6 Further Beyond DFS : Package Managers (Networking and Compiling in the Kernel)</a></li>
+<li><a href="#chapter-61-further-beyond-dfs--package-managers-user-space">Chapter 6.1 Further Beyond DFS : Package Managers (User-space)</a></li>
+<li><a href="#chapter-62-further-beyond-dfs-package-managers-the-bootloader">Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)</a></li>
+<li><a href="#chapter-63-further-beyond-dfs--package-managers">Chapter 6.3 Further Beyond DFS : Package Manager (Development)</a></li>
+<li><a href="#chapter-7-further-beyond-dfs--wine">Chapter 7 Further Beyond DFS : Wine</a></li>
+<li><a href="#chapter-71-further-beyond-dfs--Creating-your-own-bootloader">Chapter 7.1 Further Beyond DFS : Using a custom bootloader</a></li>
+<li><a href="#chapter-8-further-beyond-dfs--text-editors">Chapter 8 Further Beyond DFS : Text Editors (NANO)</a></li>
+</ul>
+<h1 id="chapter-1-0-installing-required-dependencies">Chapter 1.0 : Installing Required Dependencies</h1>
+<p><img src="https://img.shields.io/badge/Level%20Newbie-green" alt="newbie"></p>
+<ul>
+<li>we will require a few dependencies to configure , build and use the kernel here are a few packages we may need<pre><code class="lang-bash"><span class="hljs-symbol">apt</span>-<span class="hljs-meta">get</span> install <span class="hljs-keyword">bzip2 </span>git vim make gcc libncurses-dev flex <span class="hljs-keyword">bison </span><span class="hljs-keyword">bc </span>cpio libelf-dev libssl-dev syslinux dosfstools
+</code></pre>
+if you get an error such as<pre><code class="lang-bash">xaruc@dfs-<span class="hljs-symbol">guide:</span>~$ apt-get install bzip2 git vim make gcc libncurses-dev flex bison bc cpio libelf-dev libssl-dev syslinux dosfstools
+<span class="hljs-symbol">E:</span> Could not open lock file /var/<span class="hljs-class"><span class="hljs-keyword">lib</span>/<span class="hljs-title">dpkg</span>/<span class="hljs-title">lock</span>-<span class="hljs-title">frontend</span> - <span class="hljs-title">open</span> (13: <span class="hljs-title">Permission</span> <span class="hljs-title">denied</span>)</span>
+<span class="hljs-symbol">E:</span> Unable to acquire the dpkg frontend lock (<span class="hljs-regexp">/var/lib</span><span class="hljs-regexp">/dpkg/lock</span>-frontend), are you root?
+xaruc@dfs-<span class="hljs-symbol">guide:</span>~$
+</code></pre>
+you may need to run it with <code>sudo</code><h1 id="chapter-1-1-configuring-the-kernel">Chapter 1.1 : Configuring The Kernel</h1>
+</li>
+<li>we first have to configure and compile the kernel this is (chapter 1.0-1.3) the simplest part of the entire book</li>
+<li>first you need to  fetch the latest kernel at the time writing it is <code>6.10.7</code></li>
+<li>you need to clone the repository using <code>git</code> and enter the directory using <code>cd</code> here is how<pre><code class="lang-bash">git <span class="hljs-keyword">clone</span> <span class="hljs-title">--depth</span> <span class="hljs-number">1</span> https://github.com/torvalds/linux.git
+cd linux
+</code></pre>
+</li>
+<li><p>now you need to configure the kernel the simplest way is to run</p>
+<pre><code class="lang-bash"><span class="hljs-attribute">make menuconfig</span>
+</code></pre>
+</li>
+<li><p>the best things I recommend are adding Drivers to your distro and make sure they are selected as <code>*</code> not <code>M</code> <code>M</code> means module, After you have finished run the <code>make</code> command to build the kernel</p>
+<pre><code class="lang-bash">make -j <span class="hljs-variable">$(</span>nproc)
+</code></pre>
+</li>
+<li>after the kernel finsihed building you will see a message looking similar to this<pre><code class="lang-bash"><span class="hljs-symbol">Kernel:</span> arch<span class="hljs-meta-keyword">/x86/</span>boot/bzImage is ready (<span class="hljs-meta">#1)</span>
+</code></pre>
+</li>
+<li>this means the kernel has compiled, <code>bzImage</code> is the compiled kernel binary we will use it later to boot to the system lets create a directory lets call it for example <code>dfs-distro</code> and we will copy the <code>bzImage</code>/Kernel to the directory<pre><code><span class="hljs-keyword">mkdir</span> ~/dfs-distro
+cp -r <span class="hljs-keyword">arch</span>/x86/<span class="hljs-keyword">boot</span>/bzImage ~/dfs-distro
+</code></pre><h1 id="chapter-1-2-the-user-space">Chapter 1.2 : The User Space</h1>
+</li>
+<li>we will use busybox as the user space, linux will be the kernel but we need some kind of user-space, we will use git for this operation<pre><code class="lang-bash">git <span class="hljs-keyword">clone</span> <span class="hljs-title">--depth</span> <span class="hljs-number">1</span> https://git.busybox.net/busybox
+cd busybox
+</code></pre>
+</li>
+<li>we are going to the same thing we did with the kernel by configuring <code>busybox</code><pre><code class="lang-bash"><span class="hljs-attribute">make menuconfig</span>
+</code></pre>
+</li>
+<li>first we are going to change a few settings in busybox you need to go to to <code>Settings</code> then you need to select <code>Build static binary (no shared libs) (NEW)</code> after that run hit <code>ESC</code> x2 times and hit <code>YES</code> to save the config</li>
+<li>now compile the kernel<pre><code>make -j <span class="hljs-variable">$(</span>nproc)
+</code></pre></li>
+<li>after busybox finsihed compiling we will create a new directory in the <code>~/dfs-distro</code> directory and we will call it <code>initramfs</code><pre><code><span class="hljs-built_in">mkdir</span> ~/dfs-distro/initramfs
+</code></pre></li>
+<li>now we need to install it to the <code>initramfs</code> directory<pre><code>make CONFIG_PREFIX=<span class="hljs-regexp">/home/</span><span class="hljs-variable">$USER</span><span class="hljs-regexp">/dfs-distro/i</span>nitramfs install
+</code></pre></li>
+<li><code>initramfs</code> is the initial file system the kernel loads after booting we will put <code>busybox</code> over there</li>
+<li>now enter that directory<pre><code><span class="hljs-keyword">cd</span> ~/dfs-distro/initramfs
+<span class="hljs-keyword">ls</span>
+</code></pre></li>
+<li>you will find 1 file and 3 directories<pre><code><span class="hljs-keyword">bin </span>linuxrc <span class="hljs-keyword">sbin </span>usr
+</code></pre></li>
+<li>we will create another file called <code>init</code> which will load the shell proccess in the kernel, it will use the shell to use the shell its a little bit funny but thats what its going to do
+```
+touch init
+echo &quot;#!/bin/sh</li>
+</ul>
+<p>/bin/sh&quot; &gt;&gt; init</p>
+<pre><code>* also we can <span class="hljs-built_in">remove</span> `linuxrc` <span class="hljs-keyword">no</span> need <span class="hljs-keyword">for</span> that <span class="hljs-keyword">file</span>
+</code></pre><p>rm linuxrc</p>
+<pre><code>* also <span class="hljs-keyword">add</span><span class="bash"> <span class="hljs-built_in">exec</span> perms <span class="hljs-keyword">for</span> `init`</span>
+</code></pre><p>chmod +x init</p>
+<pre><code>* we will use <span class="hljs-keyword">the</span> find command <span class="hljs-keyword">to</span> pack this <span class="hljs-keyword">into</span> a `cpio` archive, we will pass find <span class="hljs-keyword">as</span> `cpio` <span class="hljs-keyword">and</span> pass <span class="hljs-keyword">it</span> <span class="hljs-keyword">as</span> a <span class="hljs-built_in">file</span> called `init.cpio` which will be used <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> <span class="hljs-keyword">above</span> directory
+</code></pre><p>find . | cpio -o -H newc ../init.cpio</p>
+<pre><code><span class="hljs-comment">* if you go one directory back you will find the `init.cpio` file, we will use the syslinux bootloader</span>
+
+# Chapter <span class="hljs-number">1.3</span> : The Bootloader
+<span class="hljs-comment">* we will use a utility called `dd` which will allow us to create the bootloader</span>
+</code></pre><p>dd if=/dev/zero of=boot.img bs=1M count=50
+ls</p>
+<pre><code>* you will find <span class="hljs-keyword">the</span> bootloader has been created <span class="hljs-keyword">as</span> <span class="hljs-keyword">the</span> <span class="hljs-built_in">file</span> called `boot`, now <span class="hljs-built_in">set</span> <span class="hljs-keyword">the</span> `boot` <span class="hljs-built_in">file</span> <span class="hljs-built_in">to</span> be <span class="hljs-keyword">a</span> `fat` <span class="hljs-built_in">format</span>
+</code></pre><p>mkfs.vfat boot.img</p>
+<pre><code>* <span class="hljs-keyword">after</span> <span class="hljs-built_in">running</span> <span class="hljs-keyword">it</span> will create a `fat` fs <span class="hljs-keyword">on</span> <span class="hljs-keyword">the</span> `boot` <span class="hljs-built_in">file</span> now we need <span class="hljs-keyword">to</span> enable `syslinux` <span class="hljs-keyword">on</span> <span class="hljs-keyword">the</span> `boot` <span class="hljs-built_in">file</span>
+</code></pre><p>syslinux boot.img</p>
+<pre><code>* we still need <span class="hljs-built_in">to</span> copy <span class="hljs-keyword">the</span> `init.cpio` <span class="hljs-keyword">and</span> `bzImage` <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> `syslinux` bootloader, we will <span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">directory</span> we will call <span class="hljs-keyword">it</span> <span class="hljs-keyword">as</span> `BOOTLOADER` so we will copy those <span class="hljs-built_in">files</span> <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> `BOOTLOADER` <span class="hljs-built_in">directory</span>
+</code></pre><p>mkdir BOOTLOADER
+mount boot.img BOOTLOADER
+cp bzImage init.cpio BOOTLOADER</p>
+<pre><code><span class="hljs-comment">* now you can unmount it</span>
+</code></pre><p>umount BOOTLOADER</p>
+<pre><code>you could finish here but if you want to create an ISO continue
+
+<span class="hljs-section"># Chapter 2.0 : Creating the ISO</span>
+![<span class="hljs-string">newbie</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Newbie-green</span>)
+<span class="hljs-bullet">* </span>Install the Necessary Packages we will need <span class="hljs-code">`xorriso`</span> to create a new ISO format for our Image
+</code></pre><p>sudo apt-get install xorriso genisoimage</p>
+<pre><code>* <span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">directory</span> <span class="hljs-keyword">for</span> example `~/dfs-iso` <span class="hljs-keyword">and</span> <span class="hljs-built_in">create</span> these <span class="hljs-built_in">directories</span>
+</code></pre><p>mkdir -p ~/dfs-iso/iso/{boot,rootfs}</p>
+<pre><code>* now <span class="hljs-keyword">copy</span> Kernel <span class="hljs-keyword">and</span> Initramfs <span class="hljs-keyword">and</span> Syslinux:
+</code></pre><p>cp ~/dfs-distro/BOOTLOADER/bzImage ~/dfs-iso/boot/
+cp ~/dfs-distro/BOOTLOADER/init.cpio ~/dfs-iso/boot/
+cp ~/dfs-distro/boot.img ~/dfs-iso/boot/</p>
+<pre><code>* Mount <span class="hljs-keyword">the</span> FAT Image <span class="hljs-keyword">and</span> copy Kernel <span class="hljs-keyword">and</span> Initramfs <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> Image:
+</code></pre><p>mkdir ~/mnt/boot
+sudo mount -o loop boot.img ~/mnt/boot
+cp ~/dfs-iso/boot/bzImage ~/mnt/boot/
+cp ~/dfs-iso/boot/initramfs.cpio ~/mnt/boot/</p>
+<pre><code><span class="hljs-bullet">* </span>Create Syslinux Configuration
+</code></pre><p>touch ~/mnt/boot/boot/syslinux.cfg
+echo &#39;DEFAULT linux
+LABEL linux
+    KERNEL bzImage
+    INITRD initramfs.cpio
+    APPEND root=/dev/ram0&#39; | sudo tee ~/mnt/boot/syslinux.cfg</p>
+<pre><code><span class="hljs-bullet">* </span>Unmount
+</code></pre><p>sudo umount ~/mnt/boot</p>
+<pre><code>* Create the ISO Image Using `xorriso`:
+</code></pre><p>xorriso -as mkisofs \
+    -r -V &quot;DFS_Linux&quot; \
+    -b boot.syslinux \
+    -no-emul-boot \
+    -boot-load-size 4 \
+    -boot-info-table \
+    -o ~/dfs-iso/dfs-linux.iso \
+    ~/dfs-iso</p>
+<pre><code>
+<span class="hljs-section"># Chapter 2.1 Further Beyond DFS: GUI</span>
+![<span class="hljs-string">Medium</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Medium-yellow</span>)
+<span class="hljs-bullet">* </span>We will discard the previous code since it will be useless, we need to install a few dependencies
+</code></pre><p>apt install wget
+apt install bzip2 libncurses-dev flex bison bc libelf-dev libssl-dev xz-utils autoconf gcc make libtool git vim libpng-dev libfreetype-dev g++ extlinux</p>
+<pre><code><span class="hljs-comment">* now download the kernel</span>
+</code></pre><p>wget <a href="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.tar.xz">https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.tar.xz</a>
+tar xf linux-6.10.tar.xz</p>
+<pre><code>* now go <span class="hljs-keyword">to</span> <span class="hljs-keyword">the</span> kernel's folder <span class="hljs-keyword">and</span> configure <span class="hljs-keyword">it</span>
+</code></pre><p>cd linux-6.10
+make menuconfig</p>
+<pre><code>* Now we need <span class="hljs-built_in">to</span> enable <span class="hljs-keyword">a</span> few things find all <span class="hljs-keyword">of</span> them
+</code></pre><p>Device Drivers &gt; Graphic Support &gt; Cirrus drivers
+Device Drivers &gt; Graphic Support &gt; Frame buffer devices &gt; support for frame buffer devices
+Device Drivers &gt; Graphic Support &gt; Bootup logo</p>
+<pre><code>* then hit `/` <span class="hljs-literal">and</span> type `mousedev` enable it, now we need to compile it so hit `ESC` x2 times hit `YES` then type
+</code></pre><p>make -j $(nproc)</p>
+<pre><code>* now lets make <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">directory</span> we will call <span class="hljs-keyword">it</span> `dfs-gui`
+</code></pre><p>mkdir ~/dfs-gui</p>
+<pre><code><span class="hljs-comment">* we will copy the kernel to the Directory</span>
+</code></pre><p>cp arch/x86/boot/bzImage ~/dfs-gui</p>
+<pre><code>## Chapter <span class="hljs-number">2</span>.<span class="hljs-number">2</span> Further <span class="hljs-keyword">Beyond </span>DFS: User-<span class="hljs-meta">space</span>
+<span class="hljs-symbol">This</span> is the simplest part of Further <span class="hljs-keyword">Beyond </span>DFS
+* we will now use a user-<span class="hljs-meta">space</span> called <span class="hljs-keyword">Busybox </span>again
+</code></pre><p>wget <a href="https://busybox.net/downloads/busybox-1.36.1.tar.bz2">https://busybox.net/downloads/busybox-1.36.1.tar.bz2</a>
+tar xf busybox-1.36.1.tar.bz2
+cd busybox-1.36.1</p>
+<pre><code><span class="hljs-bullet">* </span>Now configure busybox
+</code></pre><p>make menuconfig</p>
+<pre><code>* Now select `Settings &gt; build static library (No shared libs) (NEW) ` then hit `ESC` x2 times and select <span class="hljs-keyword">exit</span> then compile it using
+</code></pre><p>make -j$(nproc)</p>
+<pre><code>* Create a Config Prefix <span class="hljs-keyword">on</span> <span class="hljs-keyword">where</span> <span class="hljs-keyword">to</span> install `busybox`
+</code></pre><p>make CONFIG_PREFIX=/home/$USER/dfs-gui install</p>
+<pre><code><span class="hljs-comment"># Chapter 2.3 Further Beyond DFS : The Desktop Enviorment</span>
+we will <span class="hljs-keyword">use</span> a Window Manager called Nano-X
+</code></pre><p>git clone <a href="https://github.com/ghaerr/microwindows.git">https://github.com/ghaerr/microwindows.git</a>
+cd microwindows</p>
+<pre><code>* Navigate <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> `src/` <span class="hljs-built_in">folder</span> <span class="hljs-keyword">and</span> build The Microwindows/Nano-X Enviorment <span class="hljs-keyword">with</span> <span class="hljs-keyword">the</span> Linux Hardware buffer config
+</code></pre><p>cd src/
+cp Configs/config.linux-fb config</p>
+<pre><code><span class="hljs-comment">* Modify the Makefile to avoid issues</span>
+</code></pre><p>nano config # Change NX11 from N to Y
+nano nx11/Makefile # Comment X11_INCULDE=$(X11HDRLOCATION) and Uncomment X11_INCLUDE=./x11-local</p>
+<pre><code>* <span class="hljs-keyword">Then</span> <span class="hljs-built_in">run</span>
+</code></pre><p>make
+make install</p>
+<pre><code>
+<span class="hljs-comment">* Port an app : This is required so here is a demo</span>
+</code></pre><p>/* </p>
+<p>  hellox -- Hello world with Xlib.</p>
+<p>  $(CC) -o hellox hellox.c -lX11 -L/usr/X11/lib</p>
+<p> */</p>
+<p>#include <stdio.h></p>
+<p>#include <stdlib.h></p>
+<p>#include <string.h></p>
+<p>#include <X11/Xlib.h></p>
+<p>#include <X11/Xutil.h></p>
+<p>int main(argc,argv)
+     int argc;
+     char **argv;
+{
+  char hello[] = &quot;Hello World!&quot;;
+  char hi[] = &quot;hi!&quot;;</p>
+<p>  Display *mydisplay;
+  Window  mywindow;</p>
+<p>  GC      mygc;</p>
+<p>  XEvent myevent;
+  KeySym mykey;</p>
+<p>  XSizeHints myhint;</p>
+<p>  int myscreen;
+  unsigned long myforeground, mybackground;
+  int i;
+  char text[10];
+  int done;</p>
+<p>  /<em> setup display/screen </em>/
+  mydisplay = XOpenDisplay(&quot;&quot;);</p>
+<p>  myscreen = DefaultScreen(mydisplay);</p>
+<p>  /<em> drawing contexts for an window </em>/
+  myforeground = BlackPixel(mydisplay, myscreen);
+  mybackground = WhitePixel(mydisplay, myscreen);
+  myhint.x = 200;
+  myhint.y = 300;
+  myhint.width = 350;
+  myhint.height = 250;
+  myhint.flags = PPosition|PSize;</p>
+<p>  /<em> create window </em>/
+  mywindow = XCreateSimpleWindow(mydisplay, DefaultRootWindow(mydisplay),
+                                 myhint.x, myhint.y,
+                                 myhint.width, myhint.height,
+                                 5, myforeground, mybackground);</p>
+<p>  /<em> window manager properties (yes, use of StdProp is obsolete) </em>/
+  XSetStandardProperties(mydisplay, mywindow, hello, hello,
+                         None, argv, argc, &amp;myhint);</p>
+<p>  /<em> graphics context </em>/
+  mygc = XCreateGC(mydisplay, mywindow, 0, 0);
+  XSetBackground(mydisplay, mygc, mybackground);
+  XSetForeground(mydisplay, mygc, myforeground);</p>
+<p>  /<em> allow receiving mouse events </em>/
+  XSelectInput(mydisplay,mywindow,
+               ButtonPressMask|KeyPressMask|ExposureMask);</p>
+<p>  /<em> show up window </em>/
+  XMapRaised(mydisplay, mywindow);</p>
+<p>  /<em> event loop </em>/
+  done = 0;
+  while(done==0){</p>
+<pre><code><span class="hljs-comment">/* fetch event */</span>
+XNextEvent(mydisplay, &amp;myevent);
+
+<span class="hljs-built_in">switch</span>(myevent.type){
+
+<span class="hljs-built_in">case</span> Expose:
+  <span class="hljs-comment">/* Window was showed. */</span>
+  <span class="hljs-built_in">if</span>(myevent.xexpose.count==<span class="hljs-number">0</span>)
+    XDrawImageString(myevent.xexpose.<span class="hljs-built_in">display</span>,
+                     myevent.xexpose.window,
+                     mygc, 
+                     <span class="hljs-number">50</span>, <span class="hljs-number">50</span>, 
+                     hello, strlen(hello));
+  <span class="hljs-built_in">break</span>;
+<span class="hljs-built_in">case</span> MappingNotify:
+  <span class="hljs-comment">/* Modifier key was up/down. */</span>
+  XRefreshKeyboardMapping(&amp;myevent);
+  <span class="hljs-built_in">break</span>;
+<span class="hljs-built_in">case</span> ButtonPress:
+  <span class="hljs-comment">/* Mouse button was pressed. */</span>
+  XDrawImageString(myevent.xbutton.<span class="hljs-built_in">display</span>,
+                   myevent.xbutton.window,
+                   mygc, 
+                   myevent.xbutton.x, myevent.xbutton.y,
+                   hi, strlen(hi));
+  <span class="hljs-built_in">break</span>;
+<span class="hljs-built_in">case</span> KeyPress:
+  <span class="hljs-comment">/* Key input. */</span>
+  i = XLookupString(&amp;myevent, <span class="hljs-built_in">text</span>, <span class="hljs-number">10</span>, &amp;mykey, <span class="hljs-number">0</span>);
+  <span class="hljs-built_in">if</span>(i==<span class="hljs-number">1</span> &amp;&amp; <span class="hljs-built_in">text</span>[<span class="hljs-number">0</span>]==<span class="hljs-string">'q'</span>) done = <span class="hljs-number">1</span>;
+  <span class="hljs-built_in">break</span>;
+}
+</code></pre><p>  }</p>
+<p>  /<em> finalization </em>/
+  XFreeGC(mydisplay,mygc);
+  XDestroyWindow(mydisplay, mywindow);
+  XCloseDisplay(mydisplay);</p>
+<p>  exit(0);
+}</p>
+<pre><code>* Then <span class="hljs-built_in">run</span> `gcc gui.c -lNX11 -lnano-x &amp;&amp; gcc gui.c -lNX11 -lnano-x -I /microwindows/src/nx11/X11-<span class="hljs-keyword">local</span>/` <span class="hljs-keyword">to</span> compile now move <span class="hljs-keyword">it</span> <span class="hljs-keyword">to</span> <span class="hljs-keyword">the</span> `~/dfs-gui` dir <span class="hljs-keyword">by</span> <span class="hljs-built_in">running</span>
+</code></pre><p>mv a.out ~/dfs-gui/x11app</p>
+<pre><code>* Now enter `bin` directory
+</code></pre><p>cd microwindows/src/bin</p>
+<h1 id="or-cd-bin-">or cd bin/</h1>
+<pre><code>* Run <span class="hljs-keyword">the</span> LDD program <span class="hljs-built_in">to</span> see <span class="hljs-keyword">the</span> comipled libraries <span class="hljs-keyword">and</span> <span class="hljs-built_in">create</span> <span class="hljs-built_in">new</span> directorys
+</code></pre><p>ldd nano-X
+mkdir -p /distro/lib/x86_64-linux-gnu/
+mkdir /distro/lib64</p>
+<pre><code>* <span class="hljs-keyword">copy</span><span class="bash"> the neccassry files</span>
+</code></pre><p>cp /lib/x86_64-linux-gnu/libpng16.so.16 ~/dfs-gui/lib/x86_64-linux-gnu/libpng16.so.16
+cp /lib/x86_64-linux-gnu/libz.so.1 ~/dfs-gui/lib/x86_64-linux-gnu/libz.so.1
+cp /lib/x86_64-linux-gnu/libc.so.6 ~/dfs-gui/lib/x86_64-linux-gnu/libc.so.6
+cp /lib/x86_64-linux-gnu/libm.so.6 ~/dfs-gui/lib/x86_64-linux-gnu/libm.so.6
+cp /lib/x86_64-linux-gnu/libbrotlidec.so.1 ~/dfs-gui/lib/x86_64-linux-gnu/libbrotlidec.so.1
+cp /lib64/ld-linux-x86-64.so.2 ~/dfs-gui/lib64/ld-linux-x86-64.so.2</p>
+<pre><code>* Now run those copy commands , copy <span class="hljs-keyword">the</span> biniaries <span class="hljs-keyword">by</span> copying <span class="hljs-keyword">the</span> <span class="hljs-keyword">whole</span> <span class="hljs-built_in">folder</span>
+</code></pre><p>cd ..
+cp -r bin ~/dfs-gui/nanox
+cd ..
+cp runapp ~/dfs-gui/nanox</p>
+<pre><code># Chapter <span class="hljs-number">2</span>.<span class="hljs-number">4</span> Further <span class="hljs-keyword">Beyond </span>DFS : <span class="hljs-keyword">Bootloader </span>&amp; ISO
+* Create the ISO Directory
+</code></pre><p>mkdir -p ~/dfs-iso/{boot,grub}</p>
+<pre><code>* Copy linux kernel <span class="hljs-built_in">and</span> other <span class="hljs-keyword">file</span><span class="hljs-variable">s:</span>
+</code></pre><p>cp ~/dfs-gui/bzImage ~/dfs-iso/boot/
+cp -r ~/dfs-gui/{bin,lib,lib64,nanox,x11app,linuxrc,usr} ~/dfs-iso/</p>
+<pre><code><span class="hljs-bullet">* </span>Install GRUB
+</code></pre><p>grub-mkrescue -o ~/dfs-iso/boot/grub/grub.cfg ~/dfs-iso</p>
+<pre><code><span class="hljs-comment">* Add the following to the `grub.cfg`</span>
+</code></pre><p>set default=0
+set timeout=5</p>
+<p>menuentry &quot;DFS Distro with GUI&quot; {
+    linux /boot/bzImage root=/dev/sda rw
+}</p>
+<pre><code><span class="hljs-comment">* Create the ISO Image</span>
+</code></pre><p>xorriso -as mkisofs -o ~/dfs-iso/dfs-gui.iso -b boot/grub/grub.cfg -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -l ~/dfs-iso</p>
+<pre><code><span class="hljs-comment">* Test the ISO</span>
+</code></pre><p>qemu-system-x86_64 -cdrom ~/dfs-iso/dfs-gui.iso</p>
+<pre><code>If you <span class="hljs-built_in">get</span> <span class="hljs-keyword">any</span> issues <span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> issue
+
+<span class="hljs-comment"># Chapter 3 Further Beyond DFS: How to port `xorg`</span>
+![Hard](<span class="hljs-keyword">https</span>://img.shields.io/badge/Level%<span class="hljs-number">20</span>Hard-red) 
+This is hard <span class="hljs-keyword">and</span> we <span class="hljs-built_in">do</span> <span class="hljs-keyword">not</span> recommend this <span class="hljs-built_in">to</span> beginners please make sure you have <span class="hljs-keyword">a</span> good understanding <span class="hljs-keyword">of</span> Unix , Linux <span class="hljs-keyword">and</span> The Previous Chapters so you can <span class="hljs-built_in">get</span> <span class="hljs-keyword">a</span> better understanding <span class="hljs-keyword">of</span> how you can <span class="hljs-built_in">do</span> this
+
+* Make sure you have <span class="hljs-keyword">the</span> source code <span class="hljs-keyword">of</span> <span class="hljs-keyword">the</span> GUI ISO so you can continue
+
+* First `wget` <span class="hljs-keyword">the</span> source code <span class="hljs-keyword">and</span> extract <span class="hljs-keyword">the</span> src
+</code></pre><p>wget <a href="https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz">https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz</a>
+tar -xzf <a href="https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz">https://www.x.org/releases/individual/xserver/xorg-server-21.1.2.tar.xz</a></p>
+<pre><code><span class="hljs-bullet">* </span>now install dependencies
+</code></pre><p>sudo apt-get install build-essential libx11-dev libxext-dev libxau-dev libxdmcp-dev xorg-dev libdrm-intel1</p>
+<pre><code>* Configure <span class="hljs-keyword">and </span><span class="hljs-keyword">Build </span>Xorg
+</code></pre><p>./configure --prefix=/home/$USER/dfs-gui/usr --sysconfdir=home/$USER/dfs-gui/etc --localstatedir=/var</p>
+<pre><code><span class="hljs-comment">* Compile: Build the Xorg server:</span>
+</code></pre><p>make
+make CONFIG_PREFIX=/home/$USER/dfs-gui/ install</p>
+<pre><code>
+<span class="hljs-bullet">* </span>Download Intel Driver
+</code></pre><p>wget <a href="https://www.x.org/releases/individual/driver/xf86-video-intel-2.4.1.tar.bz2">https://www.x.org/releases/individual/driver/xf86-video-intel-2.4.1.tar.bz2</a>
+tar -xjf xf86-video-intel-2.4.1.tar.bz2
+cd xf86-video-intel-2.4.1</p>
+<pre><code>* Configure <span class="hljs-keyword">and </span><span class="hljs-keyword">Build </span>Intel Driver
+</code></pre><p>./configure --prefix=/home/$USER/dfs-gui/usr --sysconfdir=home/$USER/dfs-gui/etc
+make
+sudo make install</p>
+<pre><code>* Configure Xorg <span class="hljs-keyword">for</span> Intel Devices
+</code></pre><p>sudo mkdir -p /home/$USER/dfs-gui/etc/X11/xorg.conf.d/
+sudo nano /home$USER/dfs-gui/etc/X11/xorg.conf.d/20-intel.conf</p>
+<pre><code>
+<span class="hljs-section"># Chapter 3.1 Further Beyond DFS : Porting A Browser</span>
+![<span class="hljs-string">Hard</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Hard-red</span>) 
+
+we will port <span class="hljs-code">`links2`</span> since it is a terminal-based
+</code></pre><p>wget <a href="https://raw.githubusercontent.com/spartrekus/links2/master/links-1.03.tar.gz">https://raw.githubusercontent.com/spartrekus/links2/master/links-1.03.tar.gz</a>
+tar xzf links-1.03
+cd links-1.03</p>
+<pre><code><span class="hljs-comment">* Now lets configure the build</span>
+</code></pre><p>./configure</p>
+<pre><code><span class="hljs-comment">* Now we have a `Makefile` so we can compile it</span>
+</code></pre><p>make
+sudo make install</p>
+<pre><code>* now you have <span class="hljs-keyword">the</span> compiled binary <span class="hljs-built_in">run</span> this command <span class="hljs-keyword">to</span> find <span class="hljs-keyword">it</span>
+</code></pre><p>find . -name &#39;links*&#39; -type f</p>
+<pre><code>* now make <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">directory</span> inside <span class="hljs-keyword">of</span> <span class="hljs-keyword">the</span> distro src/ <span class="hljs-keyword">and</span> move <span class="hljs-keyword">the</span> `link` browser binary <span class="hljs-built_in">to</span> that <span class="hljs-built_in">directory</span>
+</code></pre><p>mkdir -p ~/dfs-gui/usr/bin/links/
+mv links ~/dfs-gui/usr/bin/links/links</p>
+<pre><code>* Give <span class="hljs-keyword">it</span> executable permissions
+</code></pre><p>cd ~/dfs-gui/usr/bin/links/
+chmod +x link</p>
+<pre><code><span class="hljs-comment">* Now compile it then you will have a browser then you will be able to use the browser, once you have booted to your distro type</span>
+</code></pre><p>cd /usr/bin/links/
+./links www.url-to-site.com</p>
+<pre><code>
+<span class="hljs-section"># Chapter 3.2 Further Beyond DFS : Mobile Devices (Compiling the Kernel)</span>
+![<span class="hljs-string">hard</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Hard-red</span>) 
+we will not use any tools such as <span class="hljs-code">`buildroot`</span> or <span class="hljs-code">`yocto`</span> because I would consider that to be cheating
+<span class="hljs-bullet">* </span>Discard previous code we will need to rebuild the kernel
+</code></pre><p>wget <a href="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz">https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz</a>
+tar -xf linux-6.10.7.tar.xz
+cd linux-6.10.7</p>
+<pre><code><span class="hljs-comment">* Edit the config (to do what ever you want)</span>
+</code></pre><p>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs</p>
+<pre><code>* Compile the Kernel <span class="hljs-keyword">and</span> <span class="hljs-keyword">install</span> dependencies
+</code></pre><p>sudo apt-get install gcc-arm-linux-gnueabihf
+make ARCH=arm defconfig</p>
+<pre><code><span class="hljs-comment">* Build the kernel using the cross-compiler</span>
+</code></pre><p>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage</p>
+<pre><code>* Compile Device <span class="hljs-built_in">Tree</span> (<span class="hljs-keyword">if</span> needed):
+</code></pre><p>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs</p>
+<pre><code>* move <span class="hljs-keyword">the</span> compiled kernel <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> <span class="hljs-built_in">directory</span>
+</code></pre><p>mkdir ~/dfs-arm
+mv zImage ~/dfs-arm</p>
+<pre><code><span class="hljs-comment"># Chapter 3.3 Further Beyond DFS : Mobile Devices (Compiling The User-space)</span>
+* now we will use busybox for the <span class="hljs-keyword">user</span> <span class="hljs-title">enviorment</span>
+</code></pre><p>wget <a href="https://busybox.net/downloads/busybox-1.36.1.tar.bz2">https://busybox.net/downloads/busybox-1.36.1.tar.bz2</a>
+tar xjf busybox-1.36.1.tar.bz2
+cd busybox-1.36.1</p>
+<pre><code>* Configure busybox <span class="hljs-keyword">to</span> build statically (<span class="hljs-keyword">select</span> `Build <span class="hljs-keyword">static</span> <span class="hljs-keyword">binary</span> (no <span class="hljs-keyword">shared</span> libs) (<span class="hljs-keyword">NEW</span>`)
+</code></pre><p>make menuconfig</p>
+<pre><code>* After <span class="hljs-keyword">that</span> hit `ESC` Key <span class="hljs-number">2</span> <span class="hljs-keyword">times</span> hit yes <span class="hljs-keyword">and</span> <span class="hljs-keyword">then</span> compile <span class="hljs-keyword">it</span> using
+</code></pre><p>make -j$(nproc)</p>
+<pre><code>* Make <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">directory</span> called `initramfs` <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> OS src/ where busybox will be installed
+</code></pre><p>mkdir ~/dfs-gui/initramfs
+make CONFIG_PREFIX=/home/$USER/dfs-arm/initramfs install</p>
+<pre><code>* now enter that <span class="hljs-built_in">directory</span> <span class="hljs-keyword">and</span> we will <span class="hljs-built_in">create</span> another <span class="hljs-built_in">file</span> called init which will <span class="hljs-built_in">load</span> <span class="hljs-keyword">the</span> <span class="hljs-built_in">shell</span> proccess <span class="hljs-keyword">in</span> <span class="hljs-keyword">the</span> kernel
+</code></pre><p>cd ~/dfs-arm/initramfs
+touch init
+echo &quot;#!/bin/sh</p>
+<p>/bin/sh&quot; &gt;&gt; init</p>
+<pre><code>* <span class="hljs-built_in">add</span> executionable permissions <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> `init` <span class="hljs-built_in">file</span>
+</code></pre><p>chmod +x init</p>
+<pre><code>* Implement the links browser <span class="hljs-keyword">to</span> the usr directory
+```zsh
+<span class="hljs-keyword">cd</span> ~/
+wget http<span class="hljs-variable">s:</span>//raw.githubusercontent.<span class="hljs-keyword">com</span>/spartrekus/links2/master/links-<span class="hljs-number">1.03</span>.tar.gz
+tar xzf links-<span class="hljs-number">1.03</span>
+<span class="hljs-keyword">cd</span> links-<span class="hljs-number">1.03</span>
+./configure
+<span class="hljs-keyword">make</span>
+sudo <span class="hljs-keyword">make</span> install
+<span class="hljs-keyword">find</span> . -name <span class="hljs-string">'links*'</span> -<span class="hljs-built_in">type</span> <span class="hljs-keyword">f</span>
+<span class="hljs-built_in">mkdir</span> -<span class="hljs-keyword">p</span> ~/dfs-arm/usr/bin/links/
+mv links ~/dfs-arm/usr/bin/links/links
+<span class="hljs-keyword">cd</span> ~/dfs-arm/usr/bin/links/
+chmod +<span class="hljs-keyword">x</span> link
+</code></pre><ul>
+<li>Create the <code>cpio</code> archive<pre><code>find . | cpio -o -H <span class="hljs-keyword">new</span><span class="hljs-type">c</span> ../init.cpio
+</code></pre><h1 id="chapter-3-3-further-beyond-dfs-mobile-devices-the-bootloader-">Chapter 3.3 Further Beyond DFS : Mobile Devices (The Bootloader)</h1>
+</li>
+<li>Use a utility called <code>dd</code> to create the bootloader<pre><code><span class="hljs-keyword">cd</span> ..
+dd <span class="hljs-keyword">if</span>=/dev/zero of=<span class="hljs-keyword">boot</span>.img <span class="hljs-keyword">bs</span>=1M <span class="hljs-keyword">count</span>=50
+<span class="hljs-keyword">ls</span>
+</code></pre></li>
+<li>Create a FAT Filesystem to the <code>boot</code> image<pre><code><span class="hljs-selector-tag">mkfs</span><span class="hljs-selector-class">.vfat</span> <span class="hljs-selector-tag">boot</span><span class="hljs-selector-class">.img</span>
+</code></pre></li>
+<li>Create a new directory called <code>BOOT-DFS</code> for us to copy the Compiled (OS) files to the image<pre><code><span class="hljs-keyword">mkdir</span> <span class="hljs-keyword">BOOT</span>-DFS
+mount <span class="hljs-keyword">boot</span>.img <span class="hljs-keyword">BOOT</span>-DFS
+cp zImage init.cpio <span class="hljs-keyword">BOOT</span>-DFS
+</code></pre></li>
+<li>Unmount<pre><code><span class="hljs-attribute">umount BOOT-DFS</span>
+</code></pre><h1 id="chapter-3-4-further-beyond-dfs-mobile-devices-creating-the-iso-">Chapter 3.4 Further Beyond DFS : Mobile Devices (Creating The ISO)</h1>
+</li>
+<li>Install the Necessary packages<pre><code>sudo apt-get <span class="hljs-keyword">install </span><span class="hljs-keyword">xorriso </span>genisoimage
+</code></pre></li>
+<li>Create the ISO directory<pre><code>mkdir -p ~/dfs-<span class="hljs-meta">iso</span>/<span class="hljs-meta">iso</span>/{boot,rootfs}
+</code></pre></li>
+<li>now copy the Kernel and Initramfs and Syslinux:<pre><code><span class="hljs-symbol">cp</span> ~/dfs-<span class="hljs-meta">arm</span>/<span class="hljs-keyword">BOOT-DFS/zImage </span>~/dfs-iso/<span class="hljs-keyword">boot/
+</span><span class="hljs-symbol">cp</span> ~/dfs-<span class="hljs-meta">arm</span>/<span class="hljs-keyword">BOOT-DFS/init.cpio </span>~/dfs-iso/<span class="hljs-keyword">boot/
+</span><span class="hljs-symbol">cp</span> ~/dfs-<span class="hljs-meta">arm</span>/<span class="hljs-keyword">boot.img </span>~/dfs-iso/<span class="hljs-keyword">boot/</span>
+</code></pre></li>
+<li>Create the ISO Image Using <code>xorriso</code>:<pre><code>xorriso -as mkisofs \
+  -<span class="ruby">r -V <span class="hljs-string">"DFS_Linux"</span> \
+</span>  -<span class="ruby">b boot.syslinux \
+</span>  -<span class="ruby">no-emul-boot \
+</span>  -<span class="ruby">boot-load-size <span class="hljs-number">4</span> \
+</span>  -<span class="ruby">boot-info-table \
+</span>  -<span class="ruby">o ~<span class="hljs-regexp">/dfs-iso/dfs</span>-linux.iso \
+</span>  ~/dfs-iso
+</code></pre>You have Created an ARM-based kernel it was&#39;nt that hard right?<h1 id="chapter-5-further-beyond-dfs-installation-script">Chapter 5 Further Beyond DFS : Installation Script</h1>
+<img src="https://img.shields.io/badge/Level%20Extremely%20Hard-critical" alt="critical"> 
+For Users to install your OS you will need an Installation script for users to install your OS but first we need to go over some rules</li>
+<li>We cant use any language other than shell</li>
+<li>we can&#39;t use bash or zsh we can only use the shell that the kernel and busybox comes preinstalled with</li>
+<li><p>We have to port more programs</p>
+</li>
+<li><p>Obtain FDISK&#39;s source code</p>
+<pre><code>wget https:<span class="hljs-regexp">//mi</span>rrors.edge.kernel.org<span class="hljs-regexp">/pub/</span>linux<span class="hljs-regexp">/utils/u</span>til-linux<span class="hljs-regexp">/v2.39/u</span>til-linux-<span class="hljs-number">2.39</span>.tar.xz
+</code></pre></li>
+<li>Extract the source code<pre><code><span class="hljs-selector-tag">tar</span> <span class="hljs-selector-tag">-xvf</span> <span class="hljs-selector-tag">util-linux-2</span><span class="hljs-selector-class">.39</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.xz</span>
+<span class="hljs-selector-tag">cd</span> <span class="hljs-selector-tag">util-linux-2</span><span class="hljs-selector-class">.39</span>
+</code></pre></li>
+<li>Configure , Build and compile <code>fdisk</code><pre><code><span class="hljs-string">.</span><span class="hljs-comment">/configure</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">without</span><span class="hljs-literal">-</span><span class="hljs-comment">ncurses</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">disable</span><span class="hljs-literal">-</span><span class="hljs-comment">all</span><span class="hljs-literal">-</span><span class="hljs-comment">programs</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">enable</span><span class="hljs-literal">-</span><span class="hljs-comment">fdisk</span>
+<span class="hljs-comment">make</span> <span class="hljs-comment">fdisk</span>
+</code></pre></li>
+<li>Copy <code>fdisk</code> to the distro<pre><code>cp disk-utils<span class="hljs-regexp">/fdisk ~/</span>dfs-distro<span class="hljs-regexp">/usr/</span>sbin<span class="hljs-regexp">/fdisk</span>
+</code></pre></li>
+<li><p>Add Necessary Libraries, Use ldd to check the libraries fdisk depends on:</p>
+<pre><code><span class="hljs-keyword">ldd</span> disk-utils/fdisk
+</code></pre></li>
+<li><p>Copy these libraries to your root filesystem, ensuring they are placed in the correct directories (<code>/lib</code> or <code>/lib64</code>). If the binary is too large, you can strip it to remove unnecessary symbols:</p>
+<pre><code>strip ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/sbin/m</span>kfs.ext4
+</code></pre></li>
+<li>Copy any necessary libraries to your distro’s lib or lib64 directories.</li>
+<li><p>If size is a concern, you can strip unnecessary symbols from the binary</p>
+<pre><code>strip ~<span class="hljs-regexp">/distro/u</span>sr<span class="hljs-regexp">/sbin/</span>fdisk
+</code></pre></li>
+<li><p>Now we need to port <code>mkfs</code>. Obtain the Source Code</p>
+<pre><code>wget https:<span class="hljs-comment">//downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/1.46.5/e2fsprogs-1.46.5.tar.gz</span>
+tar -xzf e2fsprogs-<span class="hljs-number">1.46</span>.<span class="hljs-number">5</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span>
+cd e2fsprogs-<span class="hljs-number">1.46</span>.<span class="hljs-number">5</span>
+</code></pre></li>
+<li>Configure , Build and Compile <code>ep2fsprogs</code><pre><code>./configure --<span class="hljs-keyword">disable</span>-shared --<span class="hljs-keyword">enable</span>-static
+<span class="hljs-built_in">make</span> mkfs.ext4
+</code></pre></li>
+<li>After building, you’ll need to copy the binary and its dependencies to your root filesystem.<pre><code>cp mke2fs<span class="hljs-regexp">/mkfs.ext4 ~/</span>dfs-distro<span class="hljs-regexp">/usr/</span>sbin<span class="hljs-regexp">/</span>
+</code></pre></li>
+<li><p>Include Necessary Libraries</p>
+<pre><code>ldd ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/sbin/m</span>kfs.ext4
+</code></pre></li>
+<li><p>Now port <code>tar</code> so obtain it&#39;s source code</p>
+<pre><code>wget https:<span class="hljs-comment">//ftp.gnu.org/gnu/tar/tar-1.34.tar.gz</span>
+tar -xzf tar-<span class="hljs-number">1.34</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span>
+cd tar-<span class="hljs-number">1.34</span>
+</code></pre></li>
+<li>Now configure,build and Compile<pre><code>./configure --<span class="hljs-keyword">disable</span>-shared --<span class="hljs-keyword">enable</span>-static
+<span class="hljs-built_in">make</span>
+</code></pre></li>
+<li>Copy the binary to the Root filesystem<pre><code>cp src<span class="hljs-regexp">/tar ~/</span>dfs-distro<span class="hljs-regexp">/usr/</span>sbin<span class="hljs-regexp">/</span>
+</code></pre></li>
+<li>Include Necessary Libraries, Copy these libraries to the appropriate directories (<code>/lib</code>, <code>/lib64</code>, etc.) in your root filesystem.<pre><code>ldd ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/sbin/</span>tar
+</code></pre></li>
+<li><p>If the binary is too large, you can strip it to reduce its size:</p>
+<pre><code>strip ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/sbin/</span>tar
+</code></pre></li>
+<li><p>Port GRUB Obtain the source</p>
+<pre><code>wget https:<span class="hljs-comment">//ftp.gnu.org/gnu/grub/grub-2.06.tar.gz</span>
+tar -xzf grub-<span class="hljs-number">2.06</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span>
+cd grub-<span class="hljs-number">2.06</span>
+</code></pre></li>
+<li><p>Configure and Compile GRUB</p>
+<pre><code>./<span class="hljs-string">configure </span><span class="hljs-built_in">--prefix=/home/$USER/dfs-distro/usr</span> <span class="hljs-built_in">--with-platform=pc</span> <span class="hljs-built_in">--target=x86_64</span> <span class="hljs-comment"># For BIOS</span>
+<span class="hljs-string">make
+</span><span class="hljs-string">make </span><span class="hljs-string">install</span>
+</code></pre></li>
+<li>Use LDD to implement missing libraries,Copy any required libraries to <code>/lib</code> or <code>/lib64</code> in your root filesystem.<pre><code>ldd ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/bin/g</span>rub-install
+ldd ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/sbin/g</span>rub-mkconfig
+</code></pre></li>
+</ul>
+<h1 id="chapter-5-1-further-beyond-dfs-installation-script-the-rootfilesystem-">Chapter 5.1 Further Beyond DFS : Installation Script (The Rootfilesystem)</h1>
+<ul>
+<li>Now we need the root filesystem <code>tar.gz</code> so we will need to run this<pre><code>cd ~/
+tar -czvf rootfs<span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span> dfs-distro
+</code></pre></li>
+<li>Move the <code>.tar.gz</code> to the <code>dfs-distro</code> directory and create standard unix partitions<pre><code>cp -r rootfs<span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span> dfs-distro
+cd dfs-distro
+mkdir <span class="hljs-selector-tag">var</span> etc root tmp dev proc
+</code></pre></li>
+<li>Port Chroot Obtain its source code<pre><code>wget https:<span class="hljs-comment">//ftp.gnu.org/gnu/coreutils/coreutils-9.2.tar.xz</span>
+tar -xf coreutils-<span class="hljs-number">9.2</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.xz</span>
+cd coreutils-<span class="hljs-number">9.2</span>
+</code></pre></li>
+<li>Configure the Build<pre><code>.<span class="hljs-regexp">/configure --prefix=/</span>home<span class="hljs-regexp">/$USER/</span>dfs-distro<span class="hljs-regexp">/usr</span>
+</code></pre></li>
+<li>Compile and install chroot onto the <code>rootfs</code><pre><code><span class="hljs-built_in">make</span>
+<span class="hljs-built_in">make</span> install
+</code></pre></li>
+<li>Ensure the chroot binary contains all of its dependencies <pre><code>ldd ~<span class="hljs-regexp">/dfs-distro/u</span>sr<span class="hljs-regexp">/bin/</span>chroot
+</code></pre></li>
+</ul>
+<h1 id="chapter-5-2-further-beyond-dfs-installation-script-script-development-">Chapter  5.2 Further Beyond DFS : Installation Script (Script Development)</h1>
+<p>We will start to work on the Script also please do not run these commands add these commands to the script I will call mine <code>install.sh</code></p>
+<ul>
+<li>First set the shell enviorment, this will tell the OS we are using this type of shell, we have not implemented bash or zsh so we will use the default shell<pre><code><span class="hljs-meta">#!/bin/sh</span>
+</code></pre></li>
+<li>Set some variables<pre><code><span class="hljs-attr">DISK</span>=<span class="hljs-string">"/dev/sda"</span>
+<span class="hljs-attr">BOOT_PARTITION</span>=<span class="hljs-string">"${DISK}1"</span>
+<span class="hljs-attr">ROOT_PARTITION</span>=<span class="hljs-string">"${DISK}2"</span>
+<span class="hljs-attr">MOUNT_POINT</span>=<span class="hljs-string">"/mnt"</span>
+<span class="hljs-attr">ROOTFS_TARBALL</span>=<span class="hljs-string">"/path/to/rootfs.tar.gz"</span>
+<span class="hljs-attr">KERNEL_IMAGE</span>=<span class="hljs-string">"/boot/bzImage"</span>     # If you are creating an ARM DFS distro please replace bzImage with zImage
+<span class="hljs-attr">INITRD_IMAGE</span>=<span class="hljs-string">"/boot/inut.cpio"</span>  # Adjust this if you have an initrd image
+</code></pre></li>
+<li>Partition Disks<pre><code>echo <span class="hljs-string">"Partitioning the disk..."</span>
+fdisk $DISK &lt;&lt;<span class="hljs-literal">EOF</span>
+o      <span class="hljs-comment"># Create a new DOS partition table</span>
+n      <span class="hljs-comment"># Add a new partition</span>
+p      <span class="hljs-comment"># Primary partition</span>
+<span class="hljs-number">1</span>      <span class="hljs-comment"># Partition number</span>
+      <span class="hljs-comment"># Default - start at beginning of disk </span>
++<span class="hljs-number">500</span>M  <span class="hljs-comment"># Boot partition size</span>
+n      <span class="hljs-comment"># Add a new partition</span>
+p      <span class="hljs-comment"># Primary partition</span>
+<span class="hljs-number">2</span>      <span class="hljs-comment"># Partition number</span>
+      <span class="hljs-comment"># Default - start immediately after the previous partition</span>
+      <span class="hljs-comment"># Default - extend to the end of the disk</span>
+<span class="hljs-keyword">a</span>      <span class="hljs-comment"># Make a partition bootable</span>
+<span class="hljs-number">1</span>      <span class="hljs-comment"># Mark the boot partition</span>
+w      <span class="hljs-comment"># Write the changes to disk</span>
+<span class="hljs-literal">EOF</span>
+</code></pre></li>
+<li>Format the Partitions<pre><code>echo <span class="hljs-string">"Formatting the partitions..."</span>
+/usr/sbin/mkfs<span class="hljs-selector-class">.ext4</span> <span class="hljs-variable">$BOOT_PARTITION</span>
+/usr/sbin/mkfs<span class="hljs-selector-class">.ext4</span> <span class="hljs-variable">$ROOT_PARTITION</span>
+</code></pre></li>
+<li>Mount the Partitions<pre><code>echo <span class="hljs-string">"Mounting the partitions..."</span>
+<span class="hljs-keyword">mkdir</span> -p <span class="hljs-variable">$MOUNT_POINT</span>
+mount <span class="hljs-variable">$ROOT_PARTITION</span> <span class="hljs-variable">$MOUNT_POINT</span>
+<span class="hljs-keyword">mkdir</span> -p <span class="hljs-variable">$MOUNT_POINT</span>/<span class="hljs-keyword">boot</span>
+mount <span class="hljs-variable">$BOOT_PARTITION</span> <span class="hljs-variable">$MOUNT_POINT</span>/<span class="hljs-keyword">boot</span>
+</code></pre></li>
+<li>Extract the Root filesystem<pre><code><span class="hljs-built_in">echo</span> <span class="hljs-string">"Extracting the root filesystem..."</span>
+/usr/sbin/tar -xzf <span class="hljs-variable">$ROOTFS_TARBALL</span> -C <span class="hljs-variable">$MOUNT_POINT</span>
+</code></pre></li>
+<li>Install GRUB And Configure FSTAB in a Chroot Enviormet
+```bash
+echo &quot;Entering the new root environment with chroot...&quot;
+/usr/bin/chroot $MOUNT_POINT /bin/sh &lt;&lt;EOF_CHROOT</li>
+</ul>
+<p>echo &quot;Installing GRUB...&quot;
+/usr/sbin/grub-install --target=i386-pc --boot-directory=/boot $DISK</p>
+<p>echo &quot;Generating GRUB configuration...&quot;
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg</p>
+<p>echo &#39;
+set default=0
+set timeout=5</p>
+<p>insmod ext2</p>
+<p>set root=(hd0,msdos1)</p>
+<p>menuentry &quot;DFS-Based OS&quot; {
+    linux /bzImage root=/dev/sda1</p>
+<pre><code><span class="hljs-attribute">initrd</span> /initrd.img
+</code></pre><p>}
+&#39; &gt;&gt; /boot/grub/grub.cfg</p>
+<p>echo &quot;Configuring fstab...&quot;
+cat &lt;<EOF > /etc/fstab
+$ROOT_PARTITION  /               ext4    defaults        1 1
+$BOOT_PARTITION  /boot           ext4    defaults        1 2
+EOF</p>
+<p>EOF_CHROOT</p>
+<pre><code>* Unmount <span class="hljs-keyword">and</span> Reboot <span class="hljs-keyword">the</span> <span class="hljs-keyword">system</span>
+</code></pre><p>echo &quot;Installation complete. Unmounting and rebooting...&quot;
+umount $MOUNT_POINT/boot
+umount $MOUNT_POINT
+reboot</p>
+<pre><code><span class="hljs-bullet">* </span>If you want a finished version click [<span class="hljs-string">here</span>](<span class="hljs-link">https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-install.sh</span>)
+
+<span class="hljs-section"># Chapter 6 Further Beyond DFS : Package Managers</span>
+![<span class="hljs-string">critical</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Extremely%20Hard-critical</span>)
+You will need to redo everything
+<span class="hljs-bullet">* </span>Discard previous code we will be recompiling the kernel
+</code></pre><p>wget <a href="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz">https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.7.tar.xz</a>
+tar xf linux-6.10.7.tar.xz
+make menuconfig</p>
+<pre><code>* Inside <span class="hljs-keyword">of</span> the config menu <span class="hljs-keyword">select</span>
+</code></pre><p>Device Drivers \
+   Network device support \
+           Ethernet driver support 
+   Wireless \
+            Generic IEEE 802.11 Networking Stack</p>
+<pre><code>* Compile <span class="hljs-keyword">the</span> Kernel (<span class="hljs-keyword">if</span> you want <span class="hljs-built_in">to</span> use ARM follow <span class="hljs-keyword">the</span> ARM <span class="hljs-keyword">and</span> this tutorial)
+</code></pre><p>make -j$(nproc)
+sudo make modules_install
+sudo make install</p>
+<pre><code>* Move <span class="hljs-keyword">the</span> kernel <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> distro <span class="hljs-built_in">directory</span>
+</code></pre><p>mkdir ~/dfs-distro
+mv arch/x86/boot/bzImage ~/dfs-distro # Change bzImage to zImage if ARM</p>
+<pre><code><span class="hljs-comment"># Chapter 6.1 Further Beyond DFS : Package Managers (User-space)</span>
+* Develop the <span class="hljs-keyword">user</span> <span class="hljs-title">space</span>
+</code></pre><p>wget <a href="https://busybox.net/downloads/busybox-1.36.1.tar.bz2">https://busybox.net/downloads/busybox-1.36.1.tar.bz2</a>
+tar xjf busybox-1.36.1.tar.bz2
+cd busybox-1.36.1</p>
+<pre><code>* Configure busybox <span class="hljs-keyword">to</span> build statically (<span class="hljs-keyword">select</span> Build <span class="hljs-keyword">static</span> <span class="hljs-keyword">binary</span> (no <span class="hljs-keyword">shared</span> libs) (<span class="hljs-keyword">NEW</span>)
+</code></pre><p>make menuconfig</p>
+<pre><code><span class="hljs-bullet">* </span>Compile busybox
+</code></pre><p>make -j$(nproc)
+mkdir ~/dfs-distro/initramfs
+make CONFIG_PREFIX=/home/$USER/dfs-distro/initramfs install</p>
+<pre><code><span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> <span class="hljs-built_in">file</span> called `init`
+</code></pre><p>cd ~/dfs-distro/initramfs
+touch init
+echo &quot;#!/bin/sh</p>
+<p>/bin/sh&quot; &gt;&gt; init
+chmod +x init</p>
+<pre><code>* Implement the Links Browser
+```zsh
+<span class="hljs-keyword">cd</span> ~/
+wget http<span class="hljs-variable">s:</span>//raw.githubusercontent.<span class="hljs-keyword">com</span>/spartrekus/links2/master/links-<span class="hljs-number">1.03</span>.tar.gz
+tar xzf links-<span class="hljs-number">1.03</span>
+<span class="hljs-keyword">cd</span> links-<span class="hljs-number">1.03</span>
+./configure
+<span class="hljs-keyword">make</span>
+sudo <span class="hljs-keyword">make</span> install
+<span class="hljs-keyword">find</span> . -name <span class="hljs-string">'links*'</span> -<span class="hljs-built_in">type</span> <span class="hljs-keyword">f</span>
+<span class="hljs-built_in">mkdir</span> -<span class="hljs-keyword">p</span> ~/dfs-distro/usr/bin/links/
+mv links ~/dfs-distro/usr/bin/links/links
+<span class="hljs-keyword">cd</span> ~/dfs-distro/usr/bin/links/
+chmod +<span class="hljs-keyword">x</span> link
+</code></pre><ul>
+<li>Create a CPIO archive<pre><code>find . | cpio -o -H <span class="hljs-keyword">new</span><span class="hljs-type">c</span> ../init.cpio
+</code></pre><h1 id="chapter-6-2-further-beyond-dfs-package-managers-the-bootloader-">Chapter 6.2 Further Beyond DFS: Package Managers (The bootloader)</h1>
+</li>
+<li><p>Use a utility like <code>dd</code> to create the boot image</p>
+<pre><code>dd <span class="hljs-keyword">if</span>=/dev/zero of=<span class="hljs-keyword">boot</span>.img <span class="hljs-keyword">bs</span>=1M <span class="hljs-keyword">count</span>=50
+<span class="hljs-keyword">ls</span>
+</code></pre></li>
+<li><p>Create a FAT fs on the boot</p>
+<pre><code><span class="hljs-selector-tag">mkfs</span><span class="hljs-selector-class">.vfat</span> <span class="hljs-selector-tag">boot</span><span class="hljs-selector-class">.img</span>
+</code></pre></li>
+<li>Create a new directory called BOOT-DFS for us to copy the Compiled (OS) files to the image<pre><code><span class="hljs-keyword">mkdir</span> <span class="hljs-keyword">BOOT</span>-DFS
+mount <span class="hljs-keyword">boot</span>.img <span class="hljs-keyword">BOOT</span>-DFS
+cp zImage init.cpio <span class="hljs-keyword">BOOT</span>-DFS
+</code></pre>unmount<pre><code><span class="hljs-attribute">umount BOOT-DFS</span>
+</code></pre><h1 id="chapter-6-3-further-beyond-dfs-package-managers">Chapter 6.3 Further Beyond DFS : Package Managers</h1>
+Now we can continue work on the Package Installer/Manager</li>
+<li>we will need to port wget on your host system run, I also recommend porting the installer packages so the installer packages can work<pre><code>wget https:<span class="hljs-comment">//ftp.gnu.org/gnu/wget/wget-latest.tar.gz</span>
+tar xzf wget-latest<span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.gz</span>
+cd wget-<span class="hljs-number">1.24</span>.<span class="hljs-number">5</span>
+</code></pre></li>
+<li>Now Compile wget<pre><code>./configure --prefix=$HOME/dfs-distro --exec-prefix=$HOME/dfs-distro --<span class="hljs-keyword">with</span>-ssl=openssl
+make
+sudo make install
+</code></pre></li>
+<li><p>Implement it to the OS</p>
+<pre><code><span class="hljs-built_in">cd</span> dfs-distro
+</code></pre></li>
+<li><p>Create a directory structure for your repository. For example:</p>
+<pre><code>/repo
+/packages
+  package1 # This can <span class="hljs-keyword">be</span> tar <span class="hljs-keyword">for</span> example
+  package2 # This can <span class="hljs-keyword">be</span> grub
+</code></pre></li>
+<li>Package Manager : You will need to develop the Package manager by either creating it with shell or python, we will use shell since we want users to be able to run it by just typing <code>./usr/bin/package-manager</code> in the terminal</li>
+<li><p>Create the variables</p>
+<pre><code><span class="hljs-attr">PACKAGE_NAME</span>=<span class="hljs-string">"$1"</span>
+<span class="hljs-attr">REPO_URL</span>=<span class="hljs-string">"http://github.com/username/repo # Replace the Username with your username"</span>
+<span class="hljs-attr">INSTALL_DIR</span>=<span class="hljs-string">"/root"</span>  # Change this to your desired install directory
+</code></pre></li>
+<li><p>Check if the package is provided</p>
+<pre><code><span class="hljs-keyword">if</span> [ -z <span class="hljs-string">"$PACKAGE_NAME"</span> ]; then
+echo <span class="hljs-string">"Usage: $0 &lt;package_name&gt;"</span>
+<span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>
+fi
+</code></pre></li>
+<li><p>Construct the Package file name</p>
+<pre><code><span class="hljs-attr">PACKAGE_FILE</span>=<span class="hljs-string">"${PACKAGE_NAME}"</span>
+</code></pre></li>
+<li><p>Download the Package</p>
+<pre><code><span class="hljs-attribute">wget</span> -q <span class="hljs-string">"<span class="hljs-variable">$REPO_URL</span>/<span class="hljs-variable">$PACKAGE_FILE</span>"</span> -O <span class="hljs-string">"<span class="hljs-variable">$PACKAGE_FILE</span>"</span>
+</code></pre></li>
+<li><p>Check if Download was successful</p>
+<pre><code><span class="hljs-keyword">if</span> [ ! -f <span class="hljs-string">"$PACKAGE_FILE"</span> ]; then
+echo <span class="hljs-string">"Package not found or failed to download."</span>
+<span class="hljs-keyword">exit</span> <span class="hljs-number">1</span>
+fi
+</code></pre></li>
+<li>Tell User Package was installed<pre><code><span class="hljs-built_in">echo</span> <span class="hljs-string">"Package <span class="hljs-variable">$PACKAGE_NAME</span> installed successfully."</span>
+</code></pre>And you have Successfully made A Package Manager if you want a finished version <a href="https://raw.githubusercontent.com/GuestSneezeOSDev/DFS2/main/ADFS/dfs-pkg.sh">click here</a></li>
+</ul>
+<h1 id="chapter-7-further-beyond-dfs-wine">Chapter 7 Further Beyond DFS : Wine</h1>
+<p><img src="https://img.shields.io/badge/Level%20Extremely%20Hard-critical" alt="critical">
+You most likely want to port <code>wine</code>, but first make sure <code>32 BIT</code> programs are supported in your kernel else Wine will not work, there is a way to get around this but this wont support most applications</p>
+<ul>
+<li>Download the official Wine git repository<pre><code>git <span class="hljs-keyword">clone</span> <span class="hljs-title">https</span>://gitlab.winehq.org/wine/wine.git
+cd wine
+</code></pre></li>
+<li>Build standard Wine with support for both 32-bit and 64-bit Windows programs, First we need to build for <code>win64</code><pre><code><span class="hljs-keyword">mkdir</span> win64
+<span class="hljs-keyword">cd</span> win64
+../configure <span class="hljs-keyword">CC</span>=<span class="hljs-string">"ccache gcc"</span> CROSSCC=<span class="hljs-string">"ccache x86_64-w64-mingw32-gcc"</span> --enable-win64
+make -j $(nproc)
+</code></pre></li>
+<li>Build for <code>win32</code><pre><code>cd ..
+mkdir win32
+cd win32
+../configure CC=<span class="hljs-string">"ccache gcc"</span> CROSSCC=<span class="hljs-string">"ccache i686-w64-mingw32-gcc"</span> --<span class="hljs-keyword">with</span>-wine64=../win64
+make -j $(nproc)
+cd ..
+</code></pre></li>
+<li>Now you have wine configured now we should add it to our PACKAGE REPOSITORY<pre><code>git clone http<span class="hljs-variable">s:</span>//github.<span class="hljs-keyword">com</span>/YourUsername/YourRepository
+<span class="hljs-keyword">cd</span> YourRepository
+<span class="hljs-keyword">cp</span> -r ~/path/<span class="hljs-keyword">to</span>/compiled/wine .
+git <span class="hljs-built_in">add</span> .
+git commit -<span class="hljs-keyword">m</span> <span class="hljs-string">"Wine"</span>
+git push origin your-branch
+git request-pull
+</code></pre>And you have successfully done it</li>
+</ul>
+<h1 id="chapter-7-1-further-beyond-dfs-creating-your-own-bootloader">Chapter 7.1 Further Beyond DFS: Creating your own Bootloader</h1>
+<p><img src="https://img.shields.io/badge/Level%20Extremely%20Hard-critical" alt="critical">
+If you want to create your own bootloader for your Distro this chapter will guide you, this will teach you how to write a bootloader from scratch which will boot to your linux kernel</p>
+<ul>
+<li>Create a new file called <code>bootloader.asm</code>
+```
+mkdir dfs-bootloader
+cd dfs-bootloader
+touch bootloader.asm</li>
+</ul>
+<p>echo &quot;org 0x7c00              ; Boot sector starts here</p>
+<p>; Function to read a sector from the disk
+read_sector:
+    mov ah, 0x02       ; BIOS interrupt for disk read
+    mov al, 1          ; Number of sectors to read
+    mov ch, 0          ; Cylinder number
+    mov cl, 2          ; Sector number (starting sector for kernel)
+    mov dh, 0          ; Head number
+    mov dl, 0x80       ; Drive number (first hard disk)
+    int 0x13           ; Call BIOS interrupt
+    jc disk_error      ; Jump if there is a carry (error)</p>
+<pre><code><span class="hljs-keyword">ret</span>
+</code></pre><p>disk_error:
+    ; Simple error handling
+    hlt</p>
+<p>; Read kernel (assuming it&#39;s at sector 2)
+call read_sector</p>
+<p>; Read initramfs (assuming it&#39;s at sector 3)
+mov cl, 3
+call read_sector</p>
+<p>; Jump to kernel (assumes kernel is at 0x1000)
+jmp 0x1000</p>
+<p>times 510 - ($ - $$) db 0 ; Fill the rest of the boot sector with zeros
+dw 0xaa55               ; Boot sector signature&quot; &gt;&gt; bootloader.asm</p>
+<pre><code><span class="hljs-comment">* Use NASM to assemble the bootloader.</span>
+</code></pre><p>nasm -f bin bootloader.asm -o bootloader.bin</p>
+<pre><code>* alternatively you can <span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> <span class="hljs-built_in">new</span> image <span class="hljs-keyword">with</span> <span class="hljs-keyword">the</span> bootloader <span class="hljs-keyword">using</span> this technique
+</code></pre><p>dd if=/dev/zero of=distro.img bs=1M count=512
+ls -lh disk.img
+dd if=bootloader.bin of=distro.img bs=512 count=1 conv=notrunc # Write the bootloader
+dd if=/home/$USER/dfs-iso/boot/bzImage of=distro.img bs=512 seek=2 conv=notrunc # Write the kernel change to zImage if ARM
+dd if=/home/$USER/dfs-iso/boot/init.cpio of=distro.img bs=512 seek=3 conv=notrunc</p>
+<pre><code><span class="hljs-comment">* Test the image</span>
+</code></pre><p>qemu-system-x86_64 -drive format=raw,file=distro.img</p>
+<pre><code>
+<span class="hljs-section"># Chapter 8 Further Beyond DFS : Text Editors</span>
+We will use <span class="hljs-code">`nano`</span> for the text editor because it is stable and <span class="hljs-code">`vim`</span> changes every day (every 5 hours)
+![<span class="hljs-string">critical</span>](<span class="hljs-link">https://img.shields.io/badge/Level%20Extremely%20Hard-critical</span>)
+<span class="hljs-bullet">* </span>Obtain <span class="hljs-code">`ncurses`</span> library
+</code></pre><p>wget <a href="http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.6.tar.gz">http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.6.tar.gz</a>
+tar xzf ncurses-5.6.tar.gz
+cd ncurses-5.6</p>
+<pre><code>* Compile `ncures`
+</code></pre><p>./configure --prefix=/home/$USER/dfs-distro/usr
+make
+make install</p>
+<pre><code>
+* Obtain `nano` source
+</code></pre><p>wget <a href="https://ftp.gnu.org/pub/gnu/nano/nano-8.1.tar.gz">https://ftp.gnu.org/pub/gnu/nano/nano-8.1.tar.gz</a>
+tar xzf nano-8.1.tar.gz
+cd nano-8.1</p>
+<pre><code>* Now compile `nano`
+</code></pre><p>./configure --prefix=/home/$USER/dfs-distro/usr
+make
+make install
+<code>``
+You have now ported</code>nano`</p>
