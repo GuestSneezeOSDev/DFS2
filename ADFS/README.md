@@ -11,3 +11,8 @@ chmod +x dfs-cli.sh
 chmod +x dfs-gui.sh
 ./dfs-gui.sh
 ```
+* ARM
+```
+chmod +x dfs-arm.sh
+./dfs-arm.sh
+```
