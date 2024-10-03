@@ -1,6 +1,6 @@
 #!/bin/sh
 PACKAGE_NAME="$1"
-REPO_URL="http://github.com/guestsneezeosdev/repo # Replace the Username with your username"
+REPO_URL="http://github.com/guestsneezeosdev/repo " # Replace the Username with your username
 INSTALL_DIR="/root"  # Change this to your desired install directory
 if [ -z "$PACKAGE_NAME" ]; then
   echo "Usage: $0 <package_name>"
